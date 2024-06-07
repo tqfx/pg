@@ -1,6 +1,3 @@
-#ifndef HASH_I
-#define HASH_I
-
 #if defined(_MSC_VER)
 #include <stdlib.h> /* intrinsic */
 #endif /* _MSC_VER */
@@ -309,5 +306,3 @@ enum
 #undef NOTFOUND
     NOTFOUND = -5,
 };
-
-#endif /* hash.i */
