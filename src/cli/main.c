@@ -175,13 +175,14 @@ Copyright (C) 2020-2024 tqfx, All rights reserved.";
 static int main_app(void);
 int main(int argc, char *argv[])
 {
-    char const *shortopts = "?nscdr:p:g::a:h:m:t:l:i:o:f:";
+    char const *shortopts = "?nscdvr:p:g::a:h:m:t:l:i:o:f:";
     static struct option const longopts[] = {
         {"help", no_argument, 0, '?'},
         {"number", no_argument, 0, 'n'},
         {"search", no_argument, 0, 's'},
         {"create", no_argument, 0, 'c'},
         {"delete", no_argument, 0, 'd'},
+        {"version", no_argument, 0, 'v'},
         {"rule", required_argument, 0, 'r'},
         {"code", required_argument, 0, 'p'},
         {"text", required_argument, 0, 'g'},
@@ -252,6 +253,11 @@ int main(int argc, char *argv[])
         case 'f':
             if (local.file) { free(local.file); }
             local.file = strdup(optarg);
+            break;
+        case 'v':
+            printf("sqlite %s\n", SQLITE_VERSION);
+            printf("cjson %s\n", cJSON_Version());
+            printf("pg 0.1.0\n");
             break;
         case '?':
         default:

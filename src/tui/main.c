@@ -1,4 +1,6 @@
 #include "pg/pg.h"
+#include "pg/json.h"
+#include "pg/sqlite.h"
 #include <getopt.h>
 #include <ncursesw/ncurses.h>
 
@@ -73,8 +75,9 @@ static int main_help(void)
 
 int main(int argc, char *argv[])
 {
-    char const *shortopts = "h";
+    char const *shortopts = "vh";
     static struct option const longopts[] = {
+        {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0},
     };
@@ -83,6 +86,11 @@ int main(int argc, char *argv[])
     {
         switch (ok)
         {
+        case 'v':
+            printf("sqlite %s\n", SQLITE_VERSION);
+            printf("cjson %s\n", cJSON_Version());
+            printf("pg 0.1.0\n");
+            break;
         case 'h':
         default:
             exit(main_help());
