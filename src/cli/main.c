@@ -1,4 +1,5 @@
 #include "app.h"
+#include <ctype.h>
 #include <getopt.h>
 #if defined(_WIN32)
 #if defined(_MSC_VER)
@@ -115,10 +116,11 @@ static void main_init(void)
     env = getenv("PG_RULE");
     if (env)
     {
-        void *p;
+        char *p;
         a_size n;
-        if (pg_io_read(env, &p, &n) > ~0)
+        if (pg_io_read(env, (void **)&p, &n) > ~0)
         {
+            while (n && isspace(p[n - 1])) { --n; }
             a_str_putn(&local.rule, p, n);
             free(p);
         }
@@ -131,10 +133,11 @@ static void main_init(void)
     env = getenv("PG_CODE");
     if (env)
     {
-        void *p;
+        char *p;
         a_size n;
-        if (pg_io_read(env, &p, &n) > ~0)
+        if (pg_io_read(env, (void **)&p, &n) > ~0)
         {
+            while (n && isspace(p[n - 1])) { --n; }
             a_str_putn(&local.code, p, n);
             free(p);
         }
