@@ -27,7 +27,7 @@ long pg_io_size(char const *fname)
     return size;
 }
 
-int pg_io_fread(FILE *handle, void **pdata, size_t *nbyte)
+int pg_io_fread(FILE *handle, char **pdata, size_t *nbyte)
 {
     long size = pg_io_fsize(handle);
     if (size < 0) { return ~0; }
@@ -37,7 +37,7 @@ int pg_io_fread(FILE *handle, void **pdata, size_t *nbyte)
     return 0;
 }
 
-int pg_io_read(char const *fname, void **pdata, size_t *nbyte)
+int pg_io_read(char const *fname, char **pdata, size_t *nbyte)
 {
     int ret = ~0;
     FILE *handle = fopen(fname, "rb");

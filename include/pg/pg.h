@@ -156,8 +156,8 @@ extern "C" {
 PG_PUBLIC long pg_io_fsize(FILE *handle);
 PG_PUBLIC long pg_io_size(char const *fname);
 
-PG_PUBLIC int pg_io_fread(FILE *handle, void **pdata, size_t *nbyte);
-PG_PUBLIC int pg_io_read(char const *fname, void **pdata, size_t *nbyte);
+PG_PUBLIC int pg_io_fread(FILE *handle, char **pdata, size_t *nbyte);
+PG_PUBLIC int pg_io_read(char const *fname, char **pdata, size_t *nbyte);
 
 PG_PUBLIC int pg_io_fwrite(FILE *handle, void const *pdata, size_t nbyte);
 PG_PUBLIC int pg_io_write(char const *fname, void const *pdata, size_t nbyte);

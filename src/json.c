@@ -4,12 +4,12 @@
 int pg_json_load(cJSON **out, char const *in)
 {
     int ret;
-    void *pdata = 0;
+    char *pdata = 0;
     size_t nbyte = 0;
     ret = pg_io_read(in, &pdata, &nbyte);
     if (ret == 0)
     {
-        *out = cJSON_ParseWithLength((char *)pdata, nbyte);
+        *out = cJSON_ParseWithLength(pdata, nbyte);
         free(pdata);
     }
     return ret;
