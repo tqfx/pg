@@ -1,5 +1,4 @@
 #include "app.h"
-#include <ctype.h>
 #include <getopt.h>
 #if defined(_WIN32)
 #if defined(_MSC_VER)
@@ -85,6 +84,28 @@ static A_INLINE void item_push(pg_view const *view)
     pg_item_set_size(item, view->size);
 }
 
+static int io_getline(char const *fname, char **pdata, size_t *nbyte)
+{
+    long seek = 0;
+    FILE *handle = fopen(fname, "r");
+    if (handle == 0) { return ~0; }
+    *nbyte = 0;
+    for (int c = fgetc(handle); c > ~0; c = fgetc(handle))
+    {
+        if (c == '\n' || c == '\r')
+        {
+            if (*nbyte) { break; }
+            else { ++seek; }
+            continue;
+        }
+        ++*nbyte;
+    }
+    *pdata = malloc(*nbyte);
+    fseek(handle, seek, SEEK_SET);
+    *nbyte = fread(*pdata, 1, *nbyte, handle);
+    return fclose(handle);
+}
+
 static A_INLINE void item_dtor(void *ctx)
 {
     pg_item_dtor((pg_item *)ctx);
@@ -118,15 +139,14 @@ static void main_init(void)
     {
         char *p;
         a_size n;
-        if (pg_io_read(env, &p, &n) > ~0)
+        if (io_getline(env, &p, &n) > ~0)
         {
-            while (n && isspace(p[n - 1])) { --n; }
-            a_str_putn(&local.rule, p, n);
+            a_str_setn(&local.rule, p, n);
             free(p);
         }
         else
         {
-            a_str_puts(&local.rule, env);
+            a_str_sets(&local.rule, env);
         }
     }
 
@@ -135,15 +155,14 @@ static void main_init(void)
     {
         char *p;
         a_size n;
-        if (pg_io_read(env, &p, &n) > ~0)
+        if (io_getline(env, &p, &n) > ~0)
         {
-            while (n && isspace(p[n - 1])) { --n; }
-            a_str_putn(&local.code, p, n);
+            a_str_setn(&local.code, p, n);
             free(p);
         }
         else
         {
-            a_str_puts(&local.code, env);
+            a_str_sets(&local.code, env);
         }
     }
 }
@@ -219,12 +238,10 @@ int main(int argc, char *argv[])
             OPTION_SET(OPTION_DELETE);
             break;
         case 'r':
-            a_str_drop(&local.rule);
-            a_str_puts(&local.rule, optarg);
+            a_str_sets(&local.rule, optarg);
             break;
         case 'p':
-            a_str_drop(&local.code);
-            a_str_puts(&local.code, optarg);
+            a_str_sets(&local.code, optarg);
             break;
         case 'g':
             local.view.text = optarg;
@@ -261,7 +278,7 @@ int main(int argc, char *argv[])
             printf("sqlite %s\n", SQLITE_VERSION);
             printf("cjson %s\n", cJSON_Version());
             printf("pg 0.1.0\n");
-            break;
+            exit(EXIT_SUCCESS);
         case '?':
         default:
             exit(main_help());
@@ -317,14 +334,15 @@ int main(int argc, char *argv[])
 
     if (local.file == 0)
     {
+        a_str str = A_STR_INIT;
+        a_str_sets(&str, local.self);
 #if defined(_WIN32)
         if (strstr(local.self, ".exe"))
         {
-            local.self[strlen(local.self) - 4] = 0;
+            a_str_getn_(&str, 0, 4);
         }
 #endif /* _WIN32 */
-        a_str str = A_STR_NUL;
-        a_str_putf(&str, "%s%s", local.self, ".db");
+        a_str_puts(&str, ".db");
         local.file = a_str_exit(&str);
     }
 

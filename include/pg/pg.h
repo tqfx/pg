@@ -120,6 +120,8 @@ PG_PUBLIC void pg_item_ctor(pg_item *ctx);
 PG_PUBLIC void pg_item_dtor(pg_item *ctx);
 PG_PUBLIC void pg_view_ctor(pg_view *ctx);
 PG_PUBLIC void pg_item_view(pg_item const *ctx, pg_view *out);
+PG_PUBLIC void pg_item_set_type(pg_item *ctx, unsigned int type);
+PG_PUBLIC void pg_item_set_size(pg_item *ctx, unsigned int size);
 PG_PUBLIC int pg_item_set_text(pg_item *ctx, void const *text);
 PG_PUBLIC int pg_item_set_hash(pg_item *ctx, void const *hash);
 PG_PUBLIC int pg_item_set_hint(pg_item *ctx, void const *hint);
@@ -128,8 +130,6 @@ PG_PUBLIC int pg_item_set_text2(pg_item *ctx, a_str const *text);
 PG_PUBLIC int pg_item_set_hash2(pg_item *ctx, a_str const *hash);
 PG_PUBLIC int pg_item_set_hint2(pg_item *ctx, a_str const *hint);
 PG_PUBLIC int pg_item_set_misc2(pg_item *ctx, a_str const *misc);
-PG_PUBLIC void pg_item_set_type(pg_item *ctx, unsigned int type);
-PG_PUBLIC void pg_item_set_size(pg_item *ctx, unsigned int size);
 
 PG_PUBLIC void pg_items_ctor(pg_items *ctx);
 PG_PUBLIC void pg_items_dtor(pg_items *ctx);

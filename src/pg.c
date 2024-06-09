@@ -469,28 +469,35 @@ void pg_item_set_size(pg_item *ctx, unsigned int size)
     ctx->size = size < outsiz ? size : outsiz;
 }
 
-#undef SETTER
-#define SETTER(field)                                        \
-    int pg_item_set_##field(pg_item *ctx, void const *field) \
-    {                                                        \
-        a_str_drop(ctx->field);                              \
-        return a_str_puts(ctx->field, field ? field : "");   \
-    }
-SETTER(text)
-SETTER(hash)
-SETTER(hint)
-SETTER(misc)
-#undef SETTER
-#define SETTER(field)                                             \
-    int pg_item_set_##field##2(pg_item * ctx, a_str const *field) \
-    {                                                             \
-        char const *const p = a_str_ptr(field);                   \
-        a_size const n = a_str_len(field);                        \
-        a_str_drop(ctx->field);                                   \
-        return a_str_putn(ctx->field, p, n);                      \
-    }
-SETTER(text)
-SETTER(hash)
-SETTER(hint)
-SETTER(misc)
-#undef SETTER
+int pg_item_set_text(pg_item *ctx, void const *text)
+{
+    return a_str_sets(ctx->text, text ? text : "");
+}
+int pg_item_set_hash(pg_item *ctx, void const *hash)
+{
+    return a_str_sets(ctx->hash, hash ? hash : "MD5");
+}
+int pg_item_set_hint(pg_item *ctx, void const *hint)
+{
+    return a_str_sets(ctx->hint, hint ? hint : "");
+}
+int pg_item_set_misc(pg_item *ctx, void const *misc)
+{
+    return a_str_sets(ctx->misc, misc ? misc : "");
+}
+int pg_item_set_text2(pg_item *ctx, a_str const *text)
+{
+    return a_str_set(ctx->text, text);
+}
+int pg_item_set_hash2(pg_item *ctx, a_str const *hash)
+{
+    return a_str_set(ctx->hash, hash);
+}
+int pg_item_set_hint2(pg_item *ctx, a_str const *hint)
+{
+    return a_str_set(ctx->hint, hint);
+}
+int pg_item_set_misc2(pg_item *ctx, a_str const *misc)
+{
+    return a_str_set(ctx->misc, misc);
+}

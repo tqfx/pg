@@ -42,8 +42,7 @@ pg_item *pg_items_add(pg_items *ctx, void const *text)
     for (a_avl_node *cur = ctx->root.node; cur;)
     {
         pg_item *const it = pg_items_entry(cur);
-        char const *const key = a_str_ptr(it->text);
-        int const res = strcmp(key, (char const *)text);
+        int const res = a_str_cmps(it->text, text);
         if (res < 0) { cur = cur->left; }
         else if (res > 0) { cur = cur->right; }
         else { return it; }
@@ -62,8 +61,7 @@ pg_item *pg_items_del(pg_items *ctx, void const *text)
     for (a_avl_node *cur = ctx->root.node; cur;)
     {
         pg_item *const it = pg_items_entry(cur);
-        char const *const key = a_str_ptr(it->text);
-        int const res = strcmp(key, (char const *)text);
+        int const res = a_str_cmps(it->text, text);
         if (res < 0) { cur = cur->left; }
         else if (res > 0) { cur = cur->right; }
         else
