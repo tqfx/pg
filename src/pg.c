@@ -186,7 +186,7 @@ int pg_v1(pg_view const *ctx, char const *code, char **out)
     if (ctx->type != PG_TYPE_DIGIT)
     {
         if (isdigit((int)(*out)[0])) { (*out)[0] = 'K'; }
-        if (ctx->type == PG_TYPE_OTHER)
+        if (outsiz && ctx->type == PG_TYPE_OTHER)
         {
             unsigned int lmisc = (unsigned int)strlen(ctx->misc);
             for (unsigned int i = 0; i != lmisc; ++i)
@@ -331,7 +331,7 @@ int pg_v2(pg_view const *ctx, char const *code, char **out)
         }
     }
 
-    if (ctx->type == PG_TYPE_OTHER)
+    if (outsiz && ctx->type == PG_TYPE_OTHER)
     {
         unsigned int lmisc = (unsigned int)strlen(ctx->misc);
         for (unsigned int i = 0; i != lmisc; ++i)

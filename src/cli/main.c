@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
         a_str str = A_STR_INIT;
         a_str_sets(&str, local.self);
 #if defined(_WIN32)
-        if (strstr(local.self, ".exe"))
+        if (strstr(a_str_ptr(&str), ".exe"))
         {
             a_str_getn_(&str, 0, 4);
         }
