@@ -189,6 +189,8 @@ int main(int argc, char *argv[])
 
     WINDOW *win = newwin(LINES, COLS, 0, 0);
     box(win, ACS_VLINE, ACS_HLINE);
+    wmove(win, 0, (COLS >> 1) - 9);
+    wprintw(win, "password generator");
     scrollok(win, TRUE);
     keypad(win, TRUE);
 
