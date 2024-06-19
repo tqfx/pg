@@ -37,12 +37,6 @@
 #pragma GCC system_header
 #endif /* __GNUC__ */
 
-#if defined(__STDC_LIB_EXT1__)
-#if !defined __STDC_WANT_LIB_EXT1__
-#define __STDC_WANT_LIB_EXT1__ 1
-#endif /* __STDC_WANT_LIB_EXT1__ */
-#endif /* __STDC_LIB_EXT1__ */
-
 #if defined(__MINGW32__)
 #undef __USE_MINGW_ANSI_STDIO
 #define __USE_MINGW_ANSI_STDIO 1
@@ -161,9 +155,9 @@
 
 /* attribute nonnull */
 #if A_PREREQ_GNUC(3, 3) || __has_attribute(__nonnull__)
-#define A_NONNULL(x) __attribute__((__nonnull__ x))
+#define A_NONULL(x) __attribute__((__nonnull__ x))
 #else /* !nonnull */
-#define A_NONNULL(x)
+#define A_NONULL(x)
 #endif /* nonnull */
 
 /* attribute format */
@@ -1077,30 +1071,30 @@ A_INTERN a_u16 a_u16_rev(a_u16 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u16 a_u16_getl(void const *b);
+A_EXTERN A_NONULL((1)) a_u16 a_u16_getl(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u16 a_u16_getl(void const *b)
+A_INTERN A_NONULL((1)) a_u16 a_u16_getl(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return a_cast_s(a_u16, (p[0] << 0) | (p[1] << 8));
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u16 a_u16_getb(void const *b);
+A_EXTERN A_NONULL((1)) a_u16 a_u16_getb(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u16 a_u16_getb(void const *b)
+A_INTERN A_NONULL((1)) a_u16 a_u16_getb(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return a_cast_s(a_u16, (p[1] << 0) | (p[0] << 8));
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u16_setl(void *b, a_u16 x);
+A_EXTERN A_NONULL((1)) void a_u16_setl(void *b, a_u16 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u16_setl(void *b, a_u16 x)
+A_INTERN A_NONULL((1)) void a_u16_setl(void *b, a_u16 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 0);
@@ -1108,10 +1102,10 @@ A_INTERN void a_u16_setl(void *b, a_u16 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u16_setb(void *b, a_u16 x);
+A_EXTERN A_NONULL((1)) void a_u16_setb(void *b, a_u16 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u16_setb(void *b, a_u16 x)
+A_INTERN A_NONULL((1)) void a_u16_setb(void *b, a_u16 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 8);
@@ -1139,10 +1133,10 @@ A_INTERN a_u32 a_u32_rev(a_u32 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u32 a_u32_getl(void const *b);
+A_EXTERN A_NONULL((1)) a_u32 a_u32_getl(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u32 a_u32_getl(void const *b)
+A_INTERN A_NONULL((1)) a_u32 a_u32_getl(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return (a_cast_s(a_u32, p[0]) << 0x00) |
@@ -1152,10 +1146,10 @@ A_INTERN a_u32 a_u32_getl(void const *b)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u32 a_u32_getb(void const *b);
+A_EXTERN A_NONULL((1)) a_u32 a_u32_getb(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u32 a_u32_getb(void const *b)
+A_INTERN A_NONULL((1)) a_u32 a_u32_getb(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return (a_cast_s(a_u32, p[0]) << 0x18) |
@@ -1165,10 +1159,10 @@ A_INTERN a_u32 a_u32_getb(void const *b)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u32_setl(void *b, a_u32 x);
+A_EXTERN A_NONULL((1)) void a_u32_setl(void *b, a_u32 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u32_setl(void *b, a_u32 x)
+A_INTERN A_NONULL((1)) void a_u32_setl(void *b, a_u32 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 0x00);
@@ -1178,10 +1172,10 @@ A_INTERN void a_u32_setl(void *b, a_u32 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u32_setb(void *b, a_u32 x);
+A_EXTERN A_NONULL((1)) void a_u32_setb(void *b, a_u32 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u32_setb(void *b, a_u32 x)
+A_INTERN A_NONULL((1)) void a_u32_setb(void *b, a_u32 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 0x18);
@@ -1212,10 +1206,10 @@ A_INTERN a_u64 a_u64_rev(a_u64 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u64 a_u64_getl(void const *b);
+A_EXTERN A_NONULL((1)) a_u64 a_u64_getl(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u64 a_u64_getl(void const *b)
+A_INTERN A_NONULL((1)) a_u64 a_u64_getl(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return (a_cast_s(a_u64, p[0]) << 0x00) |
@@ -1229,10 +1223,10 @@ A_INTERN a_u64 a_u64_getl(void const *b)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN a_u64 a_u64_getb(void const *b);
+A_EXTERN A_NONULL((1)) a_u64 a_u64_getb(void const *b);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN a_u64 a_u64_getb(void const *b)
+A_INTERN A_NONULL((1)) a_u64 a_u64_getb(void const *b)
 {
     a_byte const *p = a_cast_s(a_byte const *, b);
     return (a_cast_s(a_u64, p[0]) << 0x38) |
@@ -1246,10 +1240,10 @@ A_INTERN a_u64 a_u64_getb(void const *b)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u64_setl(void *b, a_u64 x);
+A_EXTERN A_NONULL((1)) void a_u64_setl(void *b, a_u64 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u64_setl(void *b, a_u64 x)
+A_INTERN A_NONULL((1)) void a_u64_setl(void *b, a_u64 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 0x00);
@@ -1263,10 +1257,10 @@ A_INTERN void a_u64_setl(void *b, a_u64 x)
 }
 #endif /* A_HAVE_INLINE */
 #if !defined A_HAVE_INLINE || defined(LIBA_A_C)
-A_EXTERN void a_u64_setb(void *b, a_u64 x);
+A_EXTERN A_NONULL((1)) void a_u64_setb(void *b, a_u64 x);
 #endif /* A_HAVE_INLINE */
 #if defined(A_HAVE_INLINE) || defined(LIBA_A_C)
-A_INTERN void a_u64_setb(void *b, a_u64 x)
+A_INTERN A_NONULL((1)) void a_u64_setb(void *b, a_u64 x)
 {
     a_byte *p = a_cast_s(a_byte *, b);
     p[0] = a_cast_s(a_byte, x >> 0x38);
@@ -1287,7 +1281,7 @@ A_INTERN void a_u64_setb(void *b, a_u64 x)
  @param[in] siz number of bytes to copy
  @return a copy of dest
 */
-A_EXTERN void *a_copy(void *__restrict dst, void const *__restrict src, a_size siz) A_NONNULL((1, 2));
+A_EXTERN A_NONULL((1, 2)) void *a_copy(void *__restrict dst, void const *__restrict src, a_size siz);
 
 /*!
  @brief move one buffer to another
@@ -1296,7 +1290,7 @@ A_EXTERN void *a_copy(void *__restrict dst, void const *__restrict src, a_size s
  @param[in] siz number of bytes to copy
  @return a copy of dest
 */
-A_EXTERN void *a_move(void *dst, void const *src, a_size siz) A_NONNULL((1, 2));
+A_EXTERN A_NONULL((1, 2)) void *a_move(void *dst, void const *src, a_size siz);
 
 /*!
  @brief fill a buffer with a character
@@ -1305,7 +1299,7 @@ A_EXTERN void *a_move(void *dst, void const *src, a_size siz) A_NONNULL((1, 2));
  @param[in] val fill byte
  @return a copy of dest
 */
-A_EXTERN void *a_fill(void *ptr, a_size siz, int val) A_NONNULL((1));
+A_EXTERN A_NONULL((1)) void *a_fill(void *ptr, a_size siz, int val);
 
 /*!
  @brief fill a buffer with zero
@@ -1313,7 +1307,7 @@ A_EXTERN void *a_fill(void *ptr, a_size siz, int val) A_NONNULL((1));
  @param[in] siz number of bytes to fill
  @return a copy of dest
 */
-A_EXTERN void *a_zero(void *ptr, a_size siz) A_NONNULL((1));
+A_EXTERN A_NONULL((1)) void *a_zero(void *ptr, a_size siz);
 
 /*!
  @brief swap two different memory blocks of the same size
@@ -1321,7 +1315,7 @@ A_EXTERN void *a_zero(void *ptr, a_size siz) A_NONNULL((1));
  @param[in,out] lhs points to memory block on the left
  @param[in,out] rhs points to memory block on the right
 */
-A_EXTERN void a_swap(void *lhs, void *rhs, a_size siz) A_NONNULL((1, 2));
+A_EXTERN A_NONULL((1, 2)) void a_swap(void *lhs, void *rhs, a_size siz);
 
 /*!
  @brief a hash function whose prime number is 131
