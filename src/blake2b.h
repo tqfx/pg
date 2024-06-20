@@ -24,14 +24,14 @@
 
 typedef struct blake2b_s
 {
-    uint64_t _t[2];
-    uint64_t _f[2];
-    uint32_t _cursiz;
+    uint64_t t_[2];
+    uint64_t f_[2];
+    uint32_t cursiz_;
     uint32_t outsiz;
-    uint64_t _state[BLAKE2B_OUTSIZ >> 3];
+    uint64_t state_[BLAKE2B_OUTSIZ >> 3];
     unsigned char out[BLAKE2B_OUTSIZ];
-    unsigned char _buf[BLAKE2B_BUFSIZ];
-    unsigned char _lastnode;
+    unsigned char buf_[BLAKE2B_BUFSIZ];
+    unsigned char lastnode_;
 } blake2b_s;
 
 #if defined(__GNUC__) || defined(__clang__)

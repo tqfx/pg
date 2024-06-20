@@ -7,24 +7,24 @@ static void md5_compress(md5_s *ctx, unsigned char const *buf)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 #endif /* __GNUC__ || __clang__ */
-    uint32_t *w = (uint32_t *)ctx->_buf;
+    uint32_t *w = (uint32_t *)ctx->buf_;
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif /* __GNUC__ || __clang__ */
-    if (ctx->_buf != buf)
+    if (ctx->buf_ != buf)
     {
         /* copy the state into 512-bits into w[0..15] */
         for (unsigned int i = 0; i != 0x10; ++i)
         {
-            LOAD32L(w[i], buf + sizeof(*ctx->_state) * i);
+            LOAD32L(w[i], buf + sizeof(*ctx->state_) * i);
         }
     }
 
     /* copy state into s */
-    uint32_t s[sizeof(ctx->_state) / sizeof(*ctx->_state)];
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    uint32_t s[sizeof(ctx->state_) / sizeof(*ctx->state_)];
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        s[i] = ctx->_state[i];
+        s[i] = ctx->state_[i];
     }
 
     /* compress */
@@ -130,21 +130,21 @@ static void md5_compress(md5_s *ctx, unsigned char const *buf)
 #undef I
 
     /* feedback */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] += s[i];
+        ctx->state_[i] += s[i];
     }
 }
 
 void md5_init(md5_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x67452301;
-    ctx->_state[1] = 0xEFCDAB89; // 0x10325476 ^ 0xFFFFFFFF
-    ctx->_state[2] = 0x98BADCFE; // 0x67452301 ^ 0xFFFFFFFF
-    ctx->_state[3] = 0x10325476;
+    ctx->state_[0] = 0x67452301;
+    ctx->state_[1] = 0xEFCDAB89; // 0x10325476 ^ 0xFFFFFFFF
+    ctx->state_[2] = 0x98BADCFE; // 0x67452301 ^ 0xFFFFFFFF
+    ctx->state_[3] = 0x10325476;
 }
 
 HASH_PROC(md5_s, md5_proc, md5_compress)

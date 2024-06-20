@@ -35,18 +35,18 @@ static void sha256_compress(sha256_s *ctx, unsigned char const *buf)
     };
 
     uint32_t w[0x40], t0, t1;
-    uint32_t s[sizeof(ctx->_state) / sizeof(*ctx->_state)];
+    uint32_t s[sizeof(ctx->state_) / sizeof(*ctx->state_)];
 
     /* copy state into s */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        s[i] = ctx->_state[i];
+        s[i] = ctx->state_[i];
     }
 
     /* copy the state into 512-bits into w[0..15] */
     for (unsigned int i = 0x00; i != 0x10; ++i)
     {
-        LOAD32H(w[i], buf + sizeof(*ctx->_state) * i);
+        LOAD32H(w[i], buf + sizeof(*ctx->state_) * i);
     }
 
     /* fill w[16..63] */
@@ -76,9 +76,9 @@ static void sha256_compress(sha256_s *ctx, unsigned char const *buf)
 #undef RND
 
     /* feedback */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] += s[i];
+        ctx->state_[i] += s[i];
     }
 }
 
@@ -93,32 +93,32 @@ static void sha256_compress(sha256_s *ctx, unsigned char const *buf)
 
 void sha256_init(sha256_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x6A09E667;
-    ctx->_state[1] = 0xBB67AE85;
-    ctx->_state[2] = 0x3C6EF372;
-    ctx->_state[3] = 0xA54FF53A;
-    ctx->_state[4] = 0x510E527F;
-    ctx->_state[5] = 0x9B05688C;
-    ctx->_state[6] = 0x1F83D9AB;
-    ctx->_state[7] = 0x5BE0CD19;
+    ctx->state_[0] = 0x6A09E667;
+    ctx->state_[1] = 0xBB67AE85;
+    ctx->state_[2] = 0x3C6EF372;
+    ctx->state_[3] = 0xA54FF53A;
+    ctx->state_[4] = 0x510E527F;
+    ctx->state_[5] = 0x9B05688C;
+    ctx->state_[6] = 0x1F83D9AB;
+    ctx->state_[7] = 0x5BE0CD19;
 }
 
 void sha224_init(sha256_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0xC1059ED8;
-    ctx->_state[1] = 0x367CD507;
-    ctx->_state[2] = 0x3070DD17;
-    ctx->_state[3] = 0xF70E5939;
-    ctx->_state[4] = 0xFFC00B31;
-    ctx->_state[5] = 0x68581511;
-    ctx->_state[6] = 0x64F98FA7;
-    ctx->_state[7] = 0xBEFA4FA4;
+    ctx->state_[0] = 0xC1059ED8;
+    ctx->state_[1] = 0x367CD507;
+    ctx->state_[2] = 0x3070DD17;
+    ctx->state_[3] = 0xF70E5939;
+    ctx->state_[4] = 0xFFC00B31;
+    ctx->state_[5] = 0x68581511;
+    ctx->state_[6] = 0x64F98FA7;
+    ctx->state_[7] = 0xBEFA4FA4;
 }
 
 HASH_PROC(sha256_s, sha256_proc, sha256_compress)

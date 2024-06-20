@@ -47,18 +47,18 @@ static void sha512_compress(sha512_s *ctx, unsigned char const *buf)
     };
 
     uint64_t w[0x50], t0, t1;
-    uint64_t s[sizeof(ctx->_state) / sizeof(*ctx->_state)];
+    uint64_t s[sizeof(ctx->state_) / sizeof(*ctx->state_)];
 
     /* copy state into s */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        s[i] = ctx->_state[i];
+        s[i] = ctx->state_[i];
     }
 
     /* copy the state into 1024-bits into w[0..15] */
     for (unsigned int i = 0x00; i != 0x10; ++i)
     {
-        LOAD64H(w[i], buf + sizeof(*ctx->_state) * i);
+        LOAD64H(w[i], buf + sizeof(*ctx->state_) * i);
     }
 
     /* fill w[16..79] */
@@ -88,9 +88,9 @@ static void sha512_compress(sha512_s *ctx, unsigned char const *buf)
 #undef RND
 
     /* feedback */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] += s[i];
+        ctx->state_[i] += s[i];
     }
 }
 
@@ -105,62 +105,62 @@ static void sha512_compress(sha512_s *ctx, unsigned char const *buf)
 
 void sha512_init(sha512_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x6A09E667F3BCC908;
-    ctx->_state[1] = 0xBB67AE8584CAA73B;
-    ctx->_state[2] = 0x3C6EF372FE94F82B;
-    ctx->_state[3] = 0xA54FF53A5F1D36F1;
-    ctx->_state[4] = 0x510E527FADE682D1;
-    ctx->_state[5] = 0x9B05688C2B3E6C1F;
-    ctx->_state[6] = 0x1F83D9ABFB41BD6B;
-    ctx->_state[7] = 0x5BE0CD19137E2179;
+    ctx->state_[0] = 0x6A09E667F3BCC908;
+    ctx->state_[1] = 0xBB67AE8584CAA73B;
+    ctx->state_[2] = 0x3C6EF372FE94F82B;
+    ctx->state_[3] = 0xA54FF53A5F1D36F1;
+    ctx->state_[4] = 0x510E527FADE682D1;
+    ctx->state_[5] = 0x9B05688C2B3E6C1F;
+    ctx->state_[6] = 0x1F83D9ABFB41BD6B;
+    ctx->state_[7] = 0x5BE0CD19137E2179;
 }
 
 void sha384_init(sha512_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0xCBBB9D5DC1059ED8;
-    ctx->_state[1] = 0x629A292A367CD507;
-    ctx->_state[2] = 0x9159015A3070DD17;
-    ctx->_state[3] = 0x152FECD8F70E5939;
-    ctx->_state[4] = 0x67332667FFC00B31;
-    ctx->_state[5] = 0x8EB44A8768581511;
-    ctx->_state[6] = 0xDB0C2E0D64F98FA7;
-    ctx->_state[7] = 0x47B5481DBEFA4FA4;
+    ctx->state_[0] = 0xCBBB9D5DC1059ED8;
+    ctx->state_[1] = 0x629A292A367CD507;
+    ctx->state_[2] = 0x9159015A3070DD17;
+    ctx->state_[3] = 0x152FECD8F70E5939;
+    ctx->state_[4] = 0x67332667FFC00B31;
+    ctx->state_[5] = 0x8EB44A8768581511;
+    ctx->state_[6] = 0xDB0C2E0D64F98FA7;
+    ctx->state_[7] = 0x47B5481DBEFA4FA4;
 }
 
 void sha512_224_init(sha512_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x8C3D37C819544DA2;
-    ctx->_state[1] = 0x73E1996689DCD4D6;
-    ctx->_state[2] = 0x1DFAB7AE32FF9C82;
-    ctx->_state[3] = 0x679DD514582F9FCF;
-    ctx->_state[4] = 0x0F6D2B697BD44DA8;
-    ctx->_state[5] = 0x77E36F7304C48942;
-    ctx->_state[6] = 0x3F9D85A86A1D36C8;
-    ctx->_state[7] = 0x1112E6AD91D692A1;
+    ctx->state_[0] = 0x8C3D37C819544DA2;
+    ctx->state_[1] = 0x73E1996689DCD4D6;
+    ctx->state_[2] = 0x1DFAB7AE32FF9C82;
+    ctx->state_[3] = 0x679DD514582F9FCF;
+    ctx->state_[4] = 0x0F6D2B697BD44DA8;
+    ctx->state_[5] = 0x77E36F7304C48942;
+    ctx->state_[6] = 0x3F9D85A86A1D36C8;
+    ctx->state_[7] = 0x1112E6AD91D692A1;
 }
 
 void sha512_256_init(sha512_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x22312194FC2BF72C;
-    ctx->_state[1] = 0x9F555FA3C84C64C2;
-    ctx->_state[2] = 0x2393B86B6F53B151;
-    ctx->_state[3] = 0x963877195940EABD;
-    ctx->_state[4] = 0x96283EE2A88EFFE3;
-    ctx->_state[5] = 0xBE5E1E2553863992;
-    ctx->_state[6] = 0x2B0199FC2C85B8AA;
-    ctx->_state[7] = 0x0EB72DDC81C52CA2;
+    ctx->state_[0] = 0x22312194FC2BF72C;
+    ctx->state_[1] = 0x9F555FA3C84C64C2;
+    ctx->state_[2] = 0x2393B86B6F53B151;
+    ctx->state_[3] = 0x963877195940EABD;
+    ctx->state_[4] = 0x96283EE2A88EFFE3;
+    ctx->state_[5] = 0xBE5E1E2553863992;
+    ctx->state_[6] = 0x2B0199FC2C85B8AA;
+    ctx->state_[7] = 0x0EB72DDC81C52CA2;
 }
 
 HASH_PROC(sha512_s, sha512_proc, sha512_compress)

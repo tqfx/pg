@@ -21,11 +21,11 @@
 
 typedef struct sha256_s
 {
-    uint64_t _length;
-    uint32_t _state[SHA256_OUTSIZ >> 2];
-    unsigned char _buf[SHA256_BUFSIZ];
+    uint64_t length_;
+    uint32_t state_[SHA256_OUTSIZ >> 2];
+    unsigned char buf_[SHA256_BUFSIZ];
     unsigned char out[SHA256_OUTSIZ];
-    uint32_t _cursiz;
+    uint32_t cursiz_;
 } sha256_s;
 
 #if defined(__GNUC__) || defined(__clang__)

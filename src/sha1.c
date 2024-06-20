@@ -4,17 +4,17 @@
 static void sha1_compress(sha1_s *ctx, unsigned char const *buf)
 {
     /* copy state into s */
-    uint32_t s[sizeof(ctx->_state) / sizeof(*ctx->_state)];
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    uint32_t s[sizeof(ctx->state_) / sizeof(*ctx->state_)];
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        s[i] = ctx->_state[i];
+        s[i] = ctx->state_[i];
     }
 
     /* copy the state into 512-bits into w[0..15] */
     uint32_t w[0x50];
     for (unsigned int i = 0x00; i != 0x10; ++i)
     {
-        LOAD32H(w[i], buf + sizeof(*ctx->_state) * i);
+        LOAD32H(w[i], buf + sizeof(*ctx->state_) * i);
     }
 
     /* expand it */
@@ -95,22 +95,22 @@ static void sha1_compress(sha1_s *ctx, unsigned char const *buf)
 #undef F3
 
     /* feedback */
-    for (i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] += s[i];
+        ctx->state_[i] += s[i];
     }
 }
 
 void sha1_init(sha1_s *ctx)
 {
-    ctx->_cursiz = 0;
-    ctx->_length = 0;
+    ctx->cursiz_ = 0;
+    ctx->length_ = 0;
 
-    ctx->_state[0] = 0x67452301;
-    ctx->_state[1] = 0xEFCDAB89; // 0x10325476 ^ 0xFFFFFFFF
-    ctx->_state[2] = 0x98BADCFE; // 0x67452301 ^ 0xFFFFFFFF
-    ctx->_state[3] = 0x10325476;
-    ctx->_state[4] = 0xC3D2E1F0;
+    ctx->state_[0] = 0x67452301;
+    ctx->state_[1] = 0xEFCDAB89; // 0x10325476 ^ 0xFFFFFFFF
+    ctx->state_[2] = 0x98BADCFE; // 0x67452301 ^ 0xFFFFFFFF
+    ctx->state_[3] = 0x10325476;
+    ctx->state_[4] = 0xC3D2E1F0;
 }
 
 HASH_PROC(sha1_s, sha1_proc, sha1_compress)

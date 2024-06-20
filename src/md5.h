@@ -20,11 +20,11 @@
 
 typedef struct md5_s
 {
-    uint64_t _length;
-    uint32_t _state[MD5_OUTSIZ >> 2];
-    unsigned char _buf[MD5_BUFSIZ];
+    uint64_t length_;
+    uint32_t state_[MD5_OUTSIZ >> 2];
+    unsigned char buf_[MD5_BUFSIZ];
     unsigned char out[MD5_OUTSIZ];
-    uint32_t _cursiz;
+    uint32_t cursiz_;
 } md5_s;
 
 #if defined(__GNUC__) || defined(__clang__)

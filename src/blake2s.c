@@ -40,25 +40,25 @@ enum
     A_PARAM_SIZE = 32,
 };
 
-static inline void blake2s_set_lastnode(blake2s_s *ctx) { ctx->_f[1] = 0xFFFFFFFF; }
+static inline void blake2s_set_lastnode(blake2s_s *ctx) { ctx->f_[1] = 0xFFFFFFFF; }
 
-static inline int blake2s_is_lastblock(blake2s_s const *ctx) { return (ctx->_f[0] != 0); }
+static inline int blake2s_is_lastblock(blake2s_s const *ctx) { return (ctx->f_[0] != 0); }
 
 static inline void blake2s_set_lastblock(blake2s_s *ctx)
 {
-    if (ctx->_lastnode)
+    if (ctx->lastnode_)
     {
         blake2s_set_lastnode(ctx);
     }
-    ctx->_f[0] = 0xFFFFFFFF;
+    ctx->f_[0] = 0xFFFFFFFF;
 }
 
 static inline void blake2s_increment_counter(blake2s_s *ctx, uint32_t inc)
 {
-    ctx->_t[0] += inc;
-    if (ctx->_t[0] < inc)
+    ctx->t_[0] += inc;
+    if (ctx->t_[0] < inc)
     {
-        ++ctx->_t[1];
+        ++ctx->t_[1];
     }
 }
 
@@ -69,32 +69,32 @@ static void blake2s_compress(blake2s_s *ctx, unsigned char const *buf)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 #endif /* __GNUC__ || __clang__ */
-    uint32_t *m = (uint32_t *)ctx->_buf;
+    uint32_t *m = (uint32_t *)ctx->buf_;
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif /* __GNUC__ || __clang__ */
-    if (ctx->_buf != buf)
+    if (ctx->buf_ != buf)
     {
         for (unsigned int i = 0; i != 0x10; ++i)
         {
-            LOAD32L(m[i], buf + sizeof(*ctx->_state) * i);
+            LOAD32L(m[i], buf + sizeof(*ctx->state_) * i);
         }
     }
 
     /* copy state into v */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        v[i] = ctx->_state[i];
+        v[i] = ctx->state_[i];
     }
 
     v[8] = blake2s_IV[0];
     v[9] = blake2s_IV[1];
     v[10] = blake2s_IV[2];
     v[11] = blake2s_IV[3];
-    v[12] = ctx->_t[0] ^ blake2s_IV[4];
-    v[13] = ctx->_t[1] ^ blake2s_IV[5];
-    v[14] = ctx->_f[0] ^ blake2s_IV[6];
-    v[15] = ctx->_f[1] ^ blake2s_IV[7];
+    v[12] = ctx->t_[0] ^ blake2s_IV[4];
+    v[13] = ctx->t_[1] ^ blake2s_IV[5];
+    v[14] = ctx->f_[0] ^ blake2s_IV[6];
+    v[15] = ctx->f_[1] ^ blake2s_IV[7];
 
 #undef G
 #define G(r, i, a, b, c, d)                            \
@@ -135,9 +135,9 @@ static void blake2s_compress(blake2s_s *ctx, unsigned char const *buf)
 #undef ROUND
 #undef G
 
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] = ctx->_state[i] ^ v[i] ^ v[i + 8];
+        ctx->state_[i] = ctx->state_[i] ^ v[i] ^ v[i + 8];
     }
 }
 
@@ -147,7 +147,7 @@ int blake2s_init(blake2s_s *ctx, size_t siz, void const *pdata, size_t nbyte)
 
     if ((siz == 0) || (sizeof(ctx->out) < siz)) { return INVALID; }
 
-    if ((pdata && !nbyte) || (nbyte && !pdata) || (sizeof(ctx->_buf) < nbyte))
+    if ((pdata && !nbyte) || (nbyte && !pdata) || (sizeof(ctx->buf_) < nbyte))
     {
         return INVALID;
     }
@@ -159,25 +159,25 @@ int blake2s_init(blake2s_s *ctx, size_t siz, void const *pdata, size_t nbyte)
 
     memset(ctx, 0, sizeof(*ctx));
 
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        ctx->_state[i] = blake2s_IV[i];
+        ctx->state_[i] = blake2s_IV[i];
     }
 
     /* IV XOR ParamBlock */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
         uint32_t t;
-        LOAD32L(t, ap + sizeof(*ctx->_state) * i);
-        ctx->_state[i] ^= t;
+        LOAD32L(t, ap + sizeof(*ctx->state_) * i);
+        ctx->state_[i] ^= t;
     }
 
     ctx->outsiz = ap[O_DIGEST_LENGTH];
 
     if (pdata)
     {
-        memcpy(ctx->_buf, pdata, nbyte);
-        blake2s_proc(ctx, ctx->_buf, sizeof(ctx->_buf));
+        memcpy(ctx->buf_, pdata, nbyte);
+        blake2s_proc(ctx, ctx->buf_, sizeof(ctx->buf_));
     }
 
     return SUCCESS;
@@ -197,30 +197,30 @@ BLAKE2S_INIT(256)
 
 int blake2s_proc(blake2s_s *ctx, void const *pdata, size_t nbyte)
 {
-    if (sizeof(ctx->_buf) < ctx->_cursiz) { return INVALID; }
+    if (sizeof(ctx->buf_) < ctx->cursiz_) { return INVALID; }
 
     unsigned char const *p = (unsigned char const *)pdata;
-    uint32_t n = (uint32_t)sizeof(ctx->_buf) - ctx->_cursiz;
+    uint32_t n = (uint32_t)sizeof(ctx->buf_) - ctx->cursiz_;
     if (nbyte > n)
     {
-        memcpy(ctx->_buf + ctx->_cursiz, p, n);
-        blake2s_increment_counter(ctx, sizeof(ctx->_buf));
-        blake2s_compress(ctx, ctx->_buf);
-        ctx->_cursiz = 0;
+        memcpy(ctx->buf_ + ctx->cursiz_, p, n);
+        blake2s_increment_counter(ctx, sizeof(ctx->buf_));
+        blake2s_compress(ctx, ctx->buf_);
+        ctx->cursiz_ = 0;
         nbyte -= n;
         p += n;
-        while (nbyte > sizeof(ctx->_buf) - 1)
+        while (nbyte > sizeof(ctx->buf_) - 1)
         {
-            blake2s_increment_counter(ctx, sizeof(ctx->_buf));
+            blake2s_increment_counter(ctx, sizeof(ctx->buf_));
             blake2s_compress(ctx, p);
-            nbyte -= sizeof(ctx->_buf);
-            p += sizeof(ctx->_buf);
+            nbyte -= sizeof(ctx->buf_);
+            p += sizeof(ctx->buf_);
         }
     }
     if (nbyte)
     {
-        memcpy(ctx->_buf + ctx->_cursiz, p, nbyte);
-        ctx->_cursiz += (uint32_t)nbyte;
+        memcpy(ctx->buf_ + ctx->cursiz_, p, nbyte);
+        ctx->cursiz_ += (uint32_t)nbyte;
     }
 
     return SUCCESS;
@@ -230,17 +230,17 @@ unsigned char *blake2s_done(blake2s_s *ctx, void *out)
 {
     if (blake2s_is_lastblock(ctx)) { return 0; }
 
-    blake2s_increment_counter(ctx, ctx->_cursiz);
+    blake2s_increment_counter(ctx, ctx->cursiz_);
     blake2s_set_lastblock(ctx);
 
     /* padding */
-    memset(ctx->_buf + ctx->_cursiz, 0, sizeof(ctx->_buf) - ctx->_cursiz);
-    blake2s_compress(ctx, ctx->_buf);
+    memset(ctx->buf_ + ctx->cursiz_, 0, sizeof(ctx->buf_) - ctx->cursiz_);
+    blake2s_compress(ctx, ctx->buf_);
 
     /* copy output */
-    for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i)
+    for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i)
     {
-        STORE32L(ctx->_state[i], ctx->out + sizeof(*ctx->_state) * i);
+        STORE32L(ctx->state_[i], ctx->out + sizeof(*ctx->state_) * i);
     }
 
     if (out && (out != ctx->out))

@@ -207,31 +207,31 @@
 #define HASH_PROC(hash, func, compress)                                      \
     int func(hash *ctx, void const *pdata, size_t nbyte)                     \
     {                                                                        \
-        if (sizeof(ctx->_buf) < ctx->_cursiz) { return INVALID; }            \
-        if (ctx->_length + (nbyte << 3) < ctx->_length) { return OVERFLOW; } \
+        if (sizeof(ctx->buf_) < ctx->cursiz_) { return INVALID; }            \
+        if (ctx->length_ + (nbyte << 3) < ctx->length_) { return OVERFLOW; } \
         unsigned char const *p = (unsigned char const *)pdata;               \
         while (nbyte)                                                        \
         {                                                                    \
-            if ((ctx->_cursiz == 0) && (sizeof(ctx->_buf) - 1 < nbyte))      \
+            if ((ctx->cursiz_ == 0) && (sizeof(ctx->buf_) - 1 < nbyte))      \
             {                                                                \
                 compress(ctx, p);                                            \
-                ctx->_length += sizeof(ctx->_buf) << 3;                      \
-                nbyte -= sizeof(ctx->_buf);                                  \
-                p += sizeof(ctx->_buf);                                      \
+                ctx->length_ += sizeof(ctx->buf_) << 3;                      \
+                nbyte -= sizeof(ctx->buf_);                                  \
+                p += sizeof(ctx->buf_);                                      \
             }                                                                \
             else                                                             \
             {                                                                \
-                uint32_t n = (uint32_t)sizeof(ctx->_buf) - ctx->_cursiz;     \
+                uint32_t n = (uint32_t)sizeof(ctx->buf_) - ctx->cursiz_;     \
                 n = n < nbyte ? n : (uint32_t)nbyte;                         \
-                memcpy(ctx->_buf + ctx->_cursiz, p, n);                      \
-                ctx->_cursiz += n;                                           \
+                memcpy(ctx->buf_ + ctx->cursiz_, p, n);                      \
+                ctx->cursiz_ += n;                                           \
                 nbyte -= n;                                                  \
                 p += n;                                                      \
-                if (sizeof(ctx->_buf) == ctx->_cursiz)                       \
+                if (sizeof(ctx->buf_) == ctx->cursiz_)                       \
                 {                                                            \
-                    compress(ctx, ctx->_buf);                                \
-                    ctx->_length += sizeof(ctx->_buf) << 3;                  \
-                    ctx->_cursiz = 0;                                        \
+                    compress(ctx, ctx->buf_);                                \
+                    ctx->length_ += sizeof(ctx->buf_) << 3;                  \
+                    ctx->cursiz_ = 0;                                        \
                 }                                                            \
             }                                                                \
         }                                                                    \
@@ -241,39 +241,39 @@
 #define HASH_DONE(hash, func, compress, storelen, storeout, append, above, zero)       \
     unsigned char *func(hash *ctx, void *out)                                          \
     {                                                                                  \
-        if (sizeof(ctx->_buf) - 1 < ctx->_cursiz) { return 0; }                        \
+        if (sizeof(ctx->buf_) - 1 < ctx->cursiz_) { return 0; }                        \
         /* increase the length of the message */                                       \
-        ctx->_length += sizeof(ctx->_length) * ctx->_cursiz;                           \
+        ctx->length_ += sizeof(ctx->length_) * ctx->cursiz_;                           \
         /* append the '1' bit */                                                       \
-        ctx->_buf[ctx->_cursiz++] = append;                                            \
+        ctx->buf_[ctx->cursiz_++] = append;                                            \
         /* if the length is currently above $above bytes we append zeros    */         \
         /* then compress. Then we can fall back to padding zeros and length */         \
         /* encoding like normal.                                            */         \
-        if ((above) < ctx->_cursiz)                                                    \
+        if ((above) < ctx->cursiz_)                                                    \
         {                                                                              \
-            while (sizeof(ctx->_buf) != ctx->_cursiz)                                  \
+            while (sizeof(ctx->buf_) != ctx->cursiz_)                                  \
             {                                                                          \
-                ctx->_buf[ctx->_cursiz++] = 0;                                         \
+                ctx->buf_[ctx->cursiz_++] = 0;                                         \
             }                                                                          \
-            compress(ctx, ctx->_buf);                                                  \
-            ctx->_cursiz = 0;                                                          \
+            compress(ctx, ctx->buf_);                                                  \
+            ctx->cursiz_ = 0;                                                          \
         }                                                                              \
         /* pad up to $zero bytes of zeroes */                                          \
-        while (ctx->_cursiz < (zero))                                                  \
+        while (ctx->cursiz_ < (zero))                                                  \
         {                                                                              \
-            ctx->_buf[ctx->_cursiz++] = 0;                                             \
+            ctx->buf_[ctx->cursiz_++] = 0;                                             \
         }                                                                              \
         /* store length */                                                             \
-        storelen(ctx->_length, ctx->_buf + (zero));                                    \
-        compress(ctx, ctx->_buf);                                                      \
+        storelen(ctx->length_, ctx->buf_ + (zero));                                    \
+        compress(ctx, ctx->buf_);                                                      \
         /* copy output */                                                              \
-        for (unsigned int i = 0; i != sizeof(ctx->_state) / sizeof(*ctx->_state); ++i) \
+        for (unsigned int i = 0; i != sizeof(ctx->state_) / sizeof(*ctx->state_); ++i) \
         {                                                                              \
-            storeout(ctx->_state[i], ctx->out + sizeof(*ctx->_state) * i);             \
+            storeout(ctx->state_[i], ctx->out + sizeof(*ctx->state_) * i);             \
         }                                                                              \
-        if (out && (out != ctx->out))                                                  \
+        if (out && out != ctx->out)                                                    \
         {                                                                              \
-            memcpy(out, ctx->out, sizeof(ctx->_state));                                \
+            memcpy(out, ctx->out, sizeof(ctx->state_));                                \
         }                                                                              \
         return ctx->out;                                                               \
     }
@@ -282,12 +282,10 @@
     unsigned char *func(def *ctx, void *out)      \
     {                                             \
         unsigned char *ret = done(ctx, ctx->out); \
-                                                  \
-        if (ret && out && (out != ctx->out))      \
+        if (ret && out && out != ctx->out)        \
         {                                         \
             memcpy(out, ctx->out, size);          \
         }                                         \
-                                                  \
         return ret;                               \
     }
 

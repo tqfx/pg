@@ -23,11 +23,11 @@
 
 typedef struct sha512_s
 {
-    uint64_t _length;
-    uint64_t _state[SHA512_OUTSIZ >> 3];
-    unsigned char _buf[SHA512_BUFSIZ];
+    uint64_t length_;
+    uint64_t state_[SHA512_OUTSIZ >> 3];
+    unsigned char buf_[SHA512_BUFSIZ];
     unsigned char out[SHA512_OUTSIZ];
-    uint32_t _cursiz;
+    uint32_t cursiz_;
 } sha512_s;
 
 #if defined(__GNUC__) || defined(__clang__)

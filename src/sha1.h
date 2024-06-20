@@ -20,11 +20,11 @@
 
 typedef struct sha1_s
 {
-    uint64_t _length;
-    unsigned char _buf[SHA1_BUFSIZ];
-    uint32_t _state[SHA1_OUTSIZ >> 2];
+    uint64_t length_;
+    unsigned char buf_[SHA1_BUFSIZ];
+    uint32_t state_[SHA1_OUTSIZ >> 2];
     unsigned char out[SHA1_OUTSIZ];
-    uint32_t _cursiz;
+    uint32_t cursiz_;
 } sha1_s;
 
 #if defined(__GNUC__) || defined(__clang__)

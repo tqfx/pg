@@ -21,13 +21,13 @@
 
 typedef struct sha3_s
 {
-    uint64_t _s[25];
-    uint64_t _saved; /* the portion of the input message that we didn't consume yet */
+    uint64_t s_[25];
+    uint64_t saved_; /* the portion of the input message that we didn't consume yet */
     unsigned char out[200]; /* used for storing `uint64_t s[25]` as little-endian bytes */
-    unsigned short _byte_index; /* 0..7--the next byte after the set one (starts from 0; 0--none are buffered) */
-    unsigned short _word_index; /* 0..24--the next word to integrate input (starts from 0) */
-    unsigned short _capacity_words; /* the double length of the hash output in words (e.g. 16 for Keccak 512) */
-    unsigned short _xof_flag;
+    unsigned short byte_index_; /* 0..7--the next byte after the set one (starts from 0; 0--none are buffered) */
+    unsigned short word_index_; /* 0..24--the next word to integrate input (starts from 0) */
+    unsigned short capacity_words_; /* the double length of the hash output in words (e.g. 16 for Keccak 512) */
+    unsigned short xof_flag_;
 } sha3_s;
 
 #define KECCAK224_BUFSIZ (200 - (224 >> 2))

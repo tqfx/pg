@@ -5,8 +5,7 @@
 
 static hash_s const *tohash(char const *text)
 {
-    if (text == 0) { return &hash_md5; }
-    switch (*text)
+    switch (text ? *text : 0)
     {
     case 'm':
         if (strcmp(text, "md5") == 0) { return &hash_md5; }
@@ -47,11 +46,9 @@ static hash_s const *tohash(char const *text)
 static char *hmac(void const *key, size_t keysiz, void const *msg, size_t msgsiz, hash_s const *hash, void *out)
 {
     hmac_s ctx;
-
     hmac_init(&ctx, hash, key, keysiz);
     hmac_proc(&ctx, msg, msgsiz);
     hmac_done(&ctx, ctx.buf);
-
     return (char *)pg_digest_lower(ctx.buf, ctx.outsiz, out);
 }
 
