@@ -68,7 +68,7 @@ static struct
     sqlite3 *db;
     char const *code;
     char const *fname;
-    pg_items items;
+    pg_tree tree;
     int status;
 } local = {
     .db = 0,
@@ -162,9 +162,9 @@ int app_init(char const *fname, a_str const *code, a_str const *rule)
     pg_sqlite_init(local.db);
     STATUS_SET(STATUS_INIT);
 
-    pg_items_ctor(&local.items);
+    pg_tree_ctor(&local.tree);
 
-    pg_sqlite_out(local.db, &local.items);
+    pg_sqlite_out(local.db, &local.tree);
 
     if (a_str_len(code))
     {
@@ -228,7 +228,7 @@ int app_exit(void)
     {
         pg_sqlite_delete(local.db);
         pg_sqlite_create(local.db);
-        pg_sqlite_add(local.db, &local.items);
+        pg_sqlite_add(local.db, &local.tree);
         STATUS_CLR(STATUS_DUMP);
     }
 
@@ -236,16 +236,16 @@ int app_exit(void)
     sqlite3_close(local.db);
     STATUS_CLR(STATUS_INIT);
 
-    pg_items_dtor(&local.items);
+    pg_tree_dtor(&local.tree);
     STATUS_SET(STATUS_DONE);
 
     return sqlite3_shutdown();
 }
 
-int app_create(a_vec const *items)
+int app_create(a_vec const *item)
 {
     int ok = A_FAILURE;
-    a_vec_foreach(pg_item, *, it, items)
+    a_vec_foreach(pg_item, *, it, item)
     {
         if (a_str_len(it->misc) == 0 && it->type == PG_TYPE_OTHER)
         {
@@ -258,7 +258,7 @@ int app_create(a_vec const *items)
             break;
         }
         char const *text = a_str_ptr(it->text);
-        pg_item *ctx = pg_items_add(&local.items, text);
+        pg_item *ctx = pg_tree_add(&local.tree, text);
         if (ctx)
         {
             STATUS_SET(STATUS_DUMP);
@@ -278,28 +278,28 @@ int app_create(a_vec const *items)
     return ok;
 }
 
-void app_search(a_vec const *items)
+void app_search(a_vec const *item)
 {
     size_t idx = 0;
-    pg_items_foreach(cur, &local.items)
+    pg_tree_foreach(cur, &local.tree)
     {
-        pg_item *it = pg_items_entry(cur);
-        int matched = (int)a_vec_num(items);
+        pg_item *it = pg_tree_entry(cur);
+        int matched = (int)a_vec_num(item);
         char const *text = a_str_ptr(it->text);
-        a_vec_foreach(pg_item, *, item, items)
+        a_vec_foreach(pg_item, *, at, item)
         {
-            if (a_str_len(item->text) && !strstr(text, a_str_ptr(item->text))) { matched = 0; }
+            if (a_str_len(at->text) && !strstr(text, a_str_ptr(at->text))) { matched = 0; }
         }
         if (matched) { app_item(idx, it); }
         ++idx;
     }
 }
 
-void app_search_n(a_vec const *items)
+void app_search_n(a_vec const *item)
 {
     a_vec number;
     a_vec_ctor(&number, sizeof(unsigned int));
-    a_vec_foreach(pg_item, *, it, items)
+    a_vec_foreach(pg_item, *, it, item)
     {
         if (a_str_len(it->text))
         {
@@ -316,9 +316,9 @@ void app_search_n(a_vec const *items)
     }
 
     a_size index = 0;
-    pg_items_foreach(cur, &local.items)
+    pg_tree_foreach(cur, &local.tree)
     {
-        pg_item *it = pg_items_entry(cur);
+        pg_item *it = pg_tree_entry(cur);
         a_vec_foreach(unsigned int, *, n, &number)
         {
             if (*n == index)
@@ -333,17 +333,17 @@ void app_search_n(a_vec const *items)
     a_vec_dtor(&number, 0);
 }
 
-int app_delete(a_vec const *items)
+int app_delete(a_vec const *item)
 {
     int ok = A_FAILURE;
-    a_vec_foreach(pg_item, *, it, items)
+    a_vec_foreach(pg_item, *, it, item)
     {
         char const *text = "";
         if (a_str_len(it->text))
         {
             text = a_str_ptr(it->text);
         }
-        pg_item *ctx = pg_items_del(&local.items, text);
+        pg_item *ctx = pg_tree_del(&local.tree, text);
         if (ctx)
         {
             STATUS_SET(STATUS_DUMP);
@@ -360,7 +360,7 @@ int app_delete(a_vec const *items)
     return ok;
 }
 
-int app_delete_n(a_vec const *items)
+int app_delete_n(a_vec const *item)
 {
     struct pg_deleted
     {
@@ -372,7 +372,7 @@ int app_delete_n(a_vec const *items)
     a_vec_ctor(&number, sizeof(unsigned int));
     a_vec_ctor(&deleted, sizeof(struct pg_deleted));
 
-    a_vec_foreach(pg_item, *, it, items)
+    a_vec_foreach(pg_item, *, it, item)
     {
         if (a_str_len(it->text))
         {
@@ -384,7 +384,7 @@ int app_delete_n(a_vec const *items)
                 app_log3(local.fname, TEXT_RED, s_invalid, s);
                 continue;
             }
-            if (x >= local.items.count)
+            if (x >= local.tree.count)
             {
                 app_log3(local.fname, TEXT_RED, s_overrun, s);
                 continue;
@@ -394,9 +394,9 @@ int app_delete_n(a_vec const *items)
     }
 
     a_size index = 0;
-    pg_items_foreach(cur, &local.items)
+    pg_tree_foreach(cur, &local.tree)
     {
-        pg_item *it = pg_items_entry(cur);
+        pg_item *it = pg_tree_entry(cur);
         a_vec_foreach(unsigned int, *, n, &number)
         {
             if (*n == index)
@@ -413,7 +413,7 @@ int app_delete_n(a_vec const *items)
     a_vec_foreach(struct pg_deleted, *, it, &deleted)
     {
         STATUS_SET(STATUS_DUMP);
-        pg_items_remove(&local.items, it->item);
+        pg_tree_remove(&local.tree, it->item);
         app_item(it->index, it->item);
         pg_item_die(it->item);
         ok = A_SUCCESS;
@@ -424,12 +424,12 @@ int app_delete_n(a_vec const *items)
     return ok;
 }
 
-int app_exec(a_vec const *items)
+int app_exec(a_vec const *item)
 {
     int ok = A_FAILURE;
     if (local.code)
     {
-        a_vec_foreach(pg_item, *, it, items)
+        a_vec_foreach(pg_item, *, it, item)
         {
             ok = app_gen(it, local.code);
         }
@@ -441,7 +441,7 @@ int app_exec(a_vec const *items)
     return ok;
 }
 
-int app_exec_n(a_vec const *items)
+int app_exec_n(a_vec const *item)
 {
     int ok = A_FAILURE;
 
@@ -454,13 +454,13 @@ int app_exec_n(a_vec const *items)
         goto exit;
     }
 
-    if (local.items.count == 0)
+    if (local.tree.count == 0)
     {
         app_log3(local.fname, TEXT_RED, s_missing, "-g");
         goto exit;
     }
 
-    a_vec_foreach(pg_item, *, it, items)
+    a_vec_foreach(pg_item, *, it, item)
     {
         if (a_str_len(it->text))
         {
@@ -472,7 +472,7 @@ int app_exec_n(a_vec const *items)
                 app_log3(local.fname, TEXT_RED, s_invalid, s);
                 continue;
             }
-            if (x >= local.items.count)
+            if (x >= local.tree.count)
             {
                 app_log3(local.fname, TEXT_RED, s_overrun, s);
                 continue;
@@ -482,9 +482,9 @@ int app_exec_n(a_vec const *items)
     }
 
     a_size index = 0;
-    pg_items_foreach(cur, &local.items)
+    pg_tree_foreach(cur, &local.tree)
     {
-        pg_item *it = pg_items_entry(cur);
+        pg_item *it = pg_tree_entry(cur);
         a_vec_foreach(unsigned int, *, n, &number)
         {
             if (*n == index)
@@ -501,7 +501,7 @@ exit:
     return ok;
 }
 
-static int app_import_(pg_items *items, char const *in)
+static int app_import_(pg_tree *tree, char const *in)
 {
     int ok;
 
@@ -510,7 +510,7 @@ static int app_import_(pg_items *items, char const *in)
     if (ok < 0) { return ok; }
     if (json)
     {
-        ok = pg_json_export(json, items);
+        ok = pg_json_export(json, tree);
         cJSON_Delete(json);
         return ok;
     }
@@ -519,7 +519,7 @@ static int app_import_(pg_items *items, char const *in)
     ok = sqlite3_open(in, &db);
     if (ok == SQLITE_OK)
     {
-        return pg_sqlite_out(db, items);
+        return pg_sqlite_out(db, tree);
     }
     fprintf(stderr, "%s\n", sqlite3_errmsg(db));
     sqlite3_close(db);
@@ -527,7 +527,7 @@ static int app_import_(pg_items *items, char const *in)
     return ok;
 }
 
-static int app_export_(pg_items *items, char const *out)
+static int app_export_(pg_tree *tree, char const *out)
 {
     int ok = A_FAILURE;
 
@@ -539,7 +539,7 @@ static int app_export_(pg_items *items, char const *out)
         {
             pg_sqlite_create(db);
             pg_sqlite_begin(db);
-            pg_sqlite_add(db, items);
+            pg_sqlite_add(db, tree);
             pg_sqlite_commit(db);
         }
         sqlite3_close(db);
@@ -547,7 +547,7 @@ static int app_export_(pg_items *items, char const *out)
     }
 
     cJSON *json = 0;
-    pg_json_import(&json, items);
+    pg_json_import(&json, tree);
     char *str = cJSON_PrintUnformatted(json);
     if (str)
     {
@@ -565,29 +565,29 @@ static int app_export_(pg_items *items, char const *out)
 int app_convert(char const *in, char const *out)
 {
     int ok;
-    pg_items items;
-    pg_items_ctor(&items);
-    ok = app_import_(&items, in);
+    pg_tree tree;
+    pg_tree_ctor(&tree);
+    ok = app_import_(&tree, in);
     if (ok) { goto exit; }
-    ok = app_export_(&items, out);
+    ok = app_export_(&tree, out);
     if (ok) { goto exit; }
 exit:
-    pg_items_dtor(&items);
+    pg_tree_dtor(&tree);
     return ok;
 }
 
 int app_import(char const *fname)
 {
-    pg_items items;
-    pg_items_ctor(&items);
-    int ok = app_import_(&items, fname);
-    if (items.count && ok == A_SUCCESS)
+    pg_tree tree;
+    pg_tree_ctor(&tree);
+    int ok = app_import_(&tree, fname);
+    if (tree.count && ok == A_SUCCESS)
     {
         STATUS_SET(STATUS_DUMP);
-        pg_items_foreach(cur, &items)
+        pg_tree_foreach(cur, &tree)
         {
-            pg_item *it = pg_items_entry(cur);
-            pg_item *item = pg_items_add(&local.items, a_str_ptr(it->text));
+            pg_item *it = pg_tree_entry(cur);
+            pg_item *item = pg_tree_add(&local.tree, a_str_ptr(it->text));
             if (it->time >= item->time)
             {
                 pg_item_set_hash2(item, it->hash);
@@ -604,11 +604,11 @@ int app_import(char const *fname)
     {
         app_log3(local.fname, TEXT_RED, s_failure, fname);
     }
-    pg_items_dtor(&items);
+    pg_tree_dtor(&tree);
     return ok;
 }
 
 int app_export(char const *fname)
 {
-    return app_export_(&local.items, fname);
+    return app_export_(&local.tree, fname);
 }

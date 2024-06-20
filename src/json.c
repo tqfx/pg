@@ -15,7 +15,7 @@ int pg_json_load(cJSON **out, char const *in)
     return ret;
 }
 
-int pg_json_export(cJSON const *in, pg_items *out)
+int pg_json_export(cJSON const *in, pg_tree *out)
 {
     pg_view view;
     cJSON *object;
@@ -54,7 +54,7 @@ int pg_json_export(cJSON const *in, pg_items *out)
         object = cJSON_GetObjectItem(item, "hint");
         view.hint = cJSON_GetStringValue(object);
 
-        pg_item *ctx = pg_items_add(out, view.text);
+        pg_item *ctx = pg_tree_add(out, view.text);
 
         object = cJSON_GetObjectItem(item, "time");
         ctx->time = object ? (a_i64)cJSON_GetNumberValue(object) : time(NULL) + A_I32_MIN;
@@ -71,12 +71,12 @@ int pg_json_export(cJSON const *in, pg_items *out)
     return 0;
 }
 
-int pg_json_import(cJSON **out, pg_items const *in)
+int pg_json_import(cJSON **out, pg_tree const *in)
 {
     *out = cJSON_CreateArray();
-    pg_items_foreach(cur, in)
+    pg_tree_foreach(cur, in)
     {
-        pg_item *it = pg_items_entry(cur);
+        pg_item *it = pg_tree_entry(cur);
         if (a_str_len(it->text) == 0) { continue; }
         cJSON *item = cJSON_CreateObject();
         cJSON_AddStringToObject(item, "text", a_str_ptr(it->text));

@@ -35,9 +35,9 @@ PG_PUBLIC int pg_sqlite_commit(sqlite3 *db);
 PG_PUBLIC int pg_sqlite_create(sqlite3 *db);
 PG_PUBLIC int pg_sqlite_delete(sqlite3 *db);
 
-PG_PUBLIC int pg_sqlite_out(sqlite3 *db, pg_items *out);
-PG_PUBLIC int pg_sqlite_add(sqlite3 *db, pg_items const *in);
-PG_PUBLIC int pg_sqlite_del(sqlite3 *db, pg_items const *in);
+PG_PUBLIC int pg_sqlite_out(sqlite3 *db, pg_tree *out);
+PG_PUBLIC int pg_sqlite_add(sqlite3 *db, pg_tree const *in);
+PG_PUBLIC int pg_sqlite_del(sqlite3 *db, pg_tree const *in);
 
 #if defined(__cplusplus)
 } /* extern "C" */

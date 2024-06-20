@@ -18,16 +18,16 @@ int app_gen(pg_item const *view, char const *code);
 int app_init(char const *fname, a_str const *code, a_str const *rule);
 int app_exit(void);
 
-int app_create(a_vec const *items);
+int app_create(a_vec const *item);
 
-void app_search(a_vec const *items);
-void app_search_n(a_vec const *items);
+void app_search(a_vec const *item);
+void app_search_n(a_vec const *item);
 
-int app_delete(a_vec const *items);
-int app_delete_n(a_vec const *items);
+int app_delete(a_vec const *item);
+int app_delete_n(a_vec const *item);
 
-int app_exec(a_vec const *items);
-int app_exec_n(a_vec const *items);
+int app_exec(a_vec const *item);
+int app_exec_n(a_vec const *item);
 
 int app_import(char const *fname);
 int app_export(char const *fname);

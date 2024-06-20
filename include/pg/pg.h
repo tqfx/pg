@@ -56,11 +56,11 @@ typedef struct pg_item
     a_i64 time;
 } pg_item;
 
-typedef struct pg_items
+typedef struct pg_tree
 {
     a_avl root;
     a_size count;
-} pg_items;
+} pg_tree;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -131,16 +131,16 @@ PG_PUBLIC int pg_item_set_hash2(pg_item *ctx, a_str const *hash);
 PG_PUBLIC int pg_item_set_hint2(pg_item *ctx, a_str const *hint);
 PG_PUBLIC int pg_item_set_misc2(pg_item *ctx, a_str const *misc);
 
-PG_PUBLIC void pg_items_ctor(pg_items *ctx);
-PG_PUBLIC void pg_items_dtor(pg_items *ctx);
-PG_PUBLIC void pg_items_insert(pg_items *ctx, pg_item *item);
-PG_PUBLIC void pg_items_remove(pg_items *ctx, pg_item *item);
+PG_PUBLIC void pg_tree_ctor(pg_tree *ctx);
+PG_PUBLIC void pg_tree_dtor(pg_tree *ctx);
+PG_PUBLIC void pg_tree_insert(pg_tree *ctx, pg_item *item);
+PG_PUBLIC void pg_tree_remove(pg_tree *ctx, pg_item *item);
 
-PG_PUBLIC pg_item *pg_items_add(pg_items *ctx, void const *text);
-PG_PUBLIC pg_item *pg_items_del(pg_items *ctx, void const *text);
+PG_PUBLIC pg_item *pg_tree_add(pg_tree *ctx, void const *text);
+PG_PUBLIC pg_item *pg_tree_del(pg_tree *ctx, void const *text);
 
-#define pg_items_foreach(cur, ctx) a_avl_foreach(cur, &(ctx)->root)
-#define pg_items_entry(cur) a_avl_entry(cur, pg_item, node)
+#define pg_tree_foreach(cur, ctx) a_avl_foreach(cur, &(ctx)->root)
+#define pg_tree_entry(cur) a_avl_entry(cur, pg_item, node)
 
 #if defined(__cplusplus)
 } /* extern "C" */
