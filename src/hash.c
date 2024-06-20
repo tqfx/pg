@@ -5,7 +5,7 @@
 #define HASH_INIT(stat, init, func)      \
     static inline void func(hash_u *ctx) \
     {                                    \
-        init(ctx->stat);                 \
+        init(&ctx->stat);                \
     }
 #if defined(MD5_H)
 HASH_INIT(md5, md5_init, hash_init_md5)
@@ -53,7 +53,7 @@ HASH_INIT(blake2b, blake2b_512_init, hash_init_blake2b_512)
 #define HASH_PROC(stat, proc, func)                                      \
     static inline int func(hash_u *ctx, void const *pdata, size_t nbyte) \
     {                                                                    \
-        return proc(ctx->stat, pdata, nbyte);                            \
+        return proc(&ctx->stat, pdata, nbyte);                           \
     }
 #if defined(MD5_H)
 HASH_PROC(md5, md5_proc, hash_proc_md5)
@@ -101,7 +101,7 @@ HASH_PROC(blake2b, blake2b_proc, hash_proc_blake2b_512)
 #define HASH_DONE(stat, done, func)                           \
     static inline unsigned char *func(hash_u *ctx, void *out) \
     {                                                         \
-        return done(ctx->stat, out);                          \
+        return done(&ctx->stat, out);                         \
     }
 #if defined(MD5_H)
 HASH_DONE(md5, md5_done, hash_done_md5)

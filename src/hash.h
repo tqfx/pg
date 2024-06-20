@@ -27,25 +27,25 @@
 typedef union hash_u
 {
 #if defined(MD5_H)
-    md5_s md5[1];
+    md5_s md5;
 #endif /* md5.h */
 #if defined(SHA1_H)
-    sha1_s sha1[1];
+    sha1_s sha1;
 #endif /* sha1.h */
 #if defined(SHA256_H)
-    sha256_s sha256[1];
+    sha256_s sha256;
 #endif /* sha256.h */
 #if defined(SHA512_H)
-    sha512_s sha512[1];
+    sha512_s sha512;
 #endif /* sha512.h */
 #if defined(SHA3_H)
-    sha3_s sha3[1];
+    sha3_s sha3;
 #endif /* sha3.h */
 #if defined(BLAKE2S_H)
-    blake2s_s blake2s[1];
+    blake2s_s blake2s;
 #endif /* blake2s.h */
 #if defined(BLAKE2B_H)
-    blake2b_s blake2b[1];
+    blake2b_s blake2b;
 #endif /* blake2b.h */
 } hash_u;
 
