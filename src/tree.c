@@ -1,5 +1,4 @@
 #include "pg/pg.h"
-#include <string.h>
 
 void pg_tree_ctor(pg_tree *ctx)
 {
@@ -18,7 +17,7 @@ void pg_tree_dtor(pg_tree *ctx)
     ctx->count = 0;
 }
 
-static int pg_item_cmp(void const *_lhs, void const *_rhs)
+static int pg_tree_cmp(void const *_lhs, void const *_rhs)
 {
     pg_item const *lhs = pg_tree_entry(_lhs);
     pg_item const *rhs = pg_tree_entry(_rhs);
@@ -27,7 +26,7 @@ static int pg_item_cmp(void const *_lhs, void const *_rhs)
 
 void pg_tree_insert(pg_tree *ctx, pg_item *item)
 {
-    a_avl_insert(&ctx->root, &item->node, pg_item_cmp);
+    a_avl_insert(&ctx->root, &item->node, pg_tree_cmp);
     ++ctx->count;
 }
 
