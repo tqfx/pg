@@ -53,8 +53,7 @@ int pg_sqlite_delete(sqlite3 *db)
 int pg_sqlite_init(sqlite3 *db)
 {
     pg_sqlite_create(db);
-    pg_sqlite_begin(db);
-    return 0;
+    return pg_sqlite_begin(db);
 }
 
 int pg_sqlite_exit(sqlite3 *db)
