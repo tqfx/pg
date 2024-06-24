@@ -505,13 +505,11 @@ static int app_import_(pg_tree *tree, char const *in)
 {
     int ok;
 
-    cJSON *json = 0;
-    ok = pg_json_load(&json, in);
-    if (ok < 0) { return ok; }
+    cJSON *json = pg_json_new(in);
     if (json)
     {
         ok = pg_json_export(json, tree);
-        cJSON_Delete(json);
+        pg_json_die(json);
         return ok;
     }
 
@@ -546,8 +544,8 @@ static int app_export_(pg_tree *tree, char const *out)
         return ok;
     }
 
-    cJSON *json = 0;
-    pg_json_import(&json, tree);
+    cJSON *json = pg_json_new(NULL);
+    pg_json_import(json, tree);
     char *str = cJSON_PrintUnformatted(json);
     if (str)
     {
@@ -557,7 +555,7 @@ static int app_export_(pg_tree *tree, char const *out)
         }
         free(str);
     }
-    cJSON_Delete(json);
+    pg_json_die(json);
 
     return ok;
 }

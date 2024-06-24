@@ -1,32 +1,34 @@
 #include "pg/json.h"
 #include <time.h>
 
-int pg_json_load(cJSON **out, char const *in)
+cJSON *pg_json_new(char const *fname)
 {
-    int ret;
     char *pdata = 0;
     size_t nbyte = 0;
-    ret = pg_io_read(in, &pdata, &nbyte);
-    if (ret == 0)
+    cJSON *out = NULL;
+    if (!fname) { return cJSON_CreateArray(); }
+    if (pg_io_read(fname, &pdata, &nbyte) == 0)
     {
-        *out = cJSON_ParseWithLength(pdata, nbyte);
+        out = cJSON_ParseWithLength(pdata, nbyte);
         free(pdata);
     }
-    return ret;
+    return out;
 }
 
-int pg_json_export(cJSON const *in, pg_tree *out)
+void pg_json_die(cJSON *json) { cJSON_Delete(json); }
+
+int pg_json_export(cJSON const *json, pg_tree *out)
 {
     pg_view view;
     cJSON *object;
-    int n = cJSON_GetArraySize(in);
+    int n = cJSON_GetArraySize(json);
     for (int i = 0; i != n; ++i)
     {
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbad-function-cast"
 #endif /* __GNUC__ || __clang__ */
-        cJSON *item = cJSON_GetArrayItem(in, i);
+        cJSON *item = cJSON_GetArrayItem(json, i);
 
         object = cJSON_GetObjectItem(item, "text");
         if (object == 0) { continue; }
@@ -71,9 +73,8 @@ int pg_json_export(cJSON const *in, pg_tree *out)
     return 0;
 }
 
-int pg_json_import(cJSON **out, pg_tree const *in)
+int pg_json_import(cJSON *json, pg_tree const *in)
 {
-    *out = cJSON_CreateArray();
     pg_tree_foreach(cur, in)
     {
         pg_item *it = pg_tree_entry(cur);
@@ -92,7 +93,7 @@ int pg_json_import(cJSON **out, pg_tree const *in)
             cJSON_AddStringToObject(item, "hint", a_str_ptr(it->hint));
         }
         cJSON_AddNumberToObject(item, "time", (double)it->time);
-        cJSON_AddItemToArray(*out, item);
+        cJSON_AddItemToArray(json, item);
     }
     return 0;
 }
