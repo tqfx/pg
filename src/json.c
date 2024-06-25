@@ -1,12 +1,21 @@
 #include "pg/json.h"
 #include <time.h>
 
-cJSON *pg_json_new(char const *fname)
+cJSON *pg_json_new(void)
+{
+    return cJSON_CreateArray();
+}
+
+void pg_json_die(cJSON *json)
+{
+    cJSON_Delete(json);
+}
+
+cJSON *pg_json_load(char const *fname)
 {
     char *pdata = 0;
     size_t nbyte = 0;
     cJSON *out = NULL;
-    if (!fname) { return cJSON_CreateArray(); }
     if (pg_io_read(fname, &pdata, &nbyte) == 0)
     {
         out = cJSON_ParseWithLength(pdata, nbyte);
@@ -15,9 +24,23 @@ cJSON *pg_json_new(char const *fname)
     return out;
 }
 
-void pg_json_die(cJSON *json) { cJSON_Delete(json); }
+int pg_json_dump(cJSON *json, char const *fname)
+{
+    int ok = A_FAILURE;
+    char *str = cJSON_PrintUnformatted(json);
+    if (str)
+    {
+        if (pg_io_write(fname, str, strlen(str)) > ~0)
+        {
+            ok = A_SUCCESS;
+        }
+        free(str);
+    }
+    cJSON_Delete(json);
+    return ok;
+}
 
-int pg_json_export(cJSON const *json, pg_tree *out)
+int pg_json_export(cJSON const *json, pg_tree *tree)
 {
     pg_view view;
     cJSON *object;
@@ -56,7 +79,7 @@ int pg_json_export(cJSON const *json, pg_tree *out)
         object = cJSON_GetObjectItem(item, "hint");
         view.hint = cJSON_GetStringValue(object);
 
-        pg_item *ctx = pg_tree_add(out, view.text);
+        pg_item *ctx = pg_tree_add(tree, view.text);
 
         object = cJSON_GetObjectItem(item, "time");
         ctx->time = object ? (a_i64)cJSON_GetNumberValue(object) : time(NULL) + A_I32_MIN;
@@ -73,9 +96,9 @@ int pg_json_export(cJSON const *json, pg_tree *out)
     return 0;
 }
 
-int pg_json_import(cJSON *json, pg_tree const *in)
+int pg_json_import(cJSON *json, pg_tree const *tree)
 {
-    pg_tree_foreach(cur, in)
+    pg_tree_foreach(cur, tree)
     {
         pg_item *it = pg_tree_entry(cur);
         if (a_str_len(it->text) == 0) { continue; }

@@ -16,11 +16,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
-PG_PUBLIC cJSON *pg_json_new(char const *fname);
+PG_PUBLIC cJSON *pg_json_new(void);
 PG_PUBLIC void pg_json_die(cJSON *json);
 
-PG_PUBLIC int pg_json_export(cJSON const *json, pg_tree *out);
-PG_PUBLIC int pg_json_import(cJSON *json, pg_tree const *in);
+PG_PUBLIC cJSON *pg_json_load(char const *fname);
+PG_PUBLIC int pg_json_dump(cJSON *json, char const *fname);
+
+PG_PUBLIC int pg_json_export(cJSON const *json, pg_tree *tree);
+PG_PUBLIC int pg_json_import(cJSON *json, pg_tree const *tree);
 
 #if defined(__cplusplus)
 } /* extern "C" */

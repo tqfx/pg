@@ -501,11 +501,11 @@ exit:
     return ok;
 }
 
-static int app_import_(pg_tree *tree, char const *in)
+static int app_import_(pg_tree *tree, char const *fname)
 {
     int ok;
 
-    cJSON *json = pg_json_new(in);
+    cJSON *json = pg_json_load(fname);
     if (json)
     {
         ok = pg_json_export(json, tree);
@@ -514,7 +514,7 @@ static int app_import_(pg_tree *tree, char const *in)
     }
 
     sqlite3 *db = 0;
-    ok = sqlite3_open(in, &db);
+    ok = sqlite3_open(fname, &db);
     if (ok == SQLITE_OK)
     {
         return pg_sqlite_out(db, tree);
@@ -525,14 +525,14 @@ static int app_import_(pg_tree *tree, char const *in)
     return ok;
 }
 
-static int app_export_(pg_tree *tree, char const *out)
+static int app_export_(pg_tree *tree, char const *fname)
 {
-    int ok = A_FAILURE;
+    int ok;
 
-    if (strstr(out, ".db"))
+    if (strstr(fname, ".db"))
     {
         sqlite3 *db = 0;
-        ok = sqlite3_open(out, &db);
+        ok = sqlite3_open(fname, &db);
         if (ok == SQLITE_OK)
         {
             pg_sqlite_create(db);
@@ -544,18 +544,9 @@ static int app_export_(pg_tree *tree, char const *out)
         return ok;
     }
 
-    cJSON *json = pg_json_new(NULL);
+    cJSON *json = pg_json_new();
     pg_json_import(json, tree);
-    char *str = cJSON_PrintUnformatted(json);
-    if (str)
-    {
-        if (pg_io_write(out, str, strlen(str)) > ~0)
-        {
-            ok = A_SUCCESS;
-        }
-        free(str);
-    }
-    pg_json_die(json);
+    ok = pg_json_dump(json, fname);
 
     return ok;
 }

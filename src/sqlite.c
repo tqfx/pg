@@ -61,7 +61,7 @@ int pg_sqlite_exit(sqlite3 *db)
     return pg_sqlite_commit(db);
 }
 
-int pg_sqlite_out(sqlite3 *db, pg_tree *out)
+int pg_sqlite_out(sqlite3 *db, pg_tree *tree)
 {
     sqlite3_stmt *stmt = 0;
 
@@ -75,7 +75,7 @@ int pg_sqlite_out(sqlite3 *db, pg_tree *out)
     {
         unsigned char const *text = sqlite3_column_text(stmt, 0);
         if (text == 0) { continue; }
-        pg_item *item = pg_tree_add(out, text);
+        pg_item *item = pg_tree_add(tree, text);
         if (((void)(text = sqlite3_column_text(stmt, 1)), text))
         {
             pg_item_set_hash(item, text);
@@ -100,7 +100,7 @@ int pg_sqlite_out(sqlite3 *db, pg_tree *out)
     return sqlite3_finalize(stmt);
 }
 
-int pg_sqlite_add(sqlite3 *db, pg_tree const *in)
+int pg_sqlite_add(sqlite3 *db, pg_tree const *tree)
 {
     sqlite3_stmt *stmt = 0;
 
@@ -110,7 +110,7 @@ int pg_sqlite_add(sqlite3 *db, pg_tree const *in)
     sqlite3_prepare(db, sql, -1, &stmt, 0);
     sqlite3_free(sql);
 
-    pg_tree_foreach(cur, in)
+    pg_tree_foreach(cur, tree)
     {
         pg_item *it = pg_tree_entry(cur);
         if (a_str_len(it->text))
@@ -143,7 +143,7 @@ int pg_sqlite_add(sqlite3 *db, pg_tree const *in)
     return sqlite3_finalize(stmt);
 }
 
-int pg_sqlite_del(sqlite3 *db, pg_tree const *in)
+int pg_sqlite_del(sqlite3 *db, pg_tree const *tree)
 {
     sqlite3_stmt *stmt = 0;
 
@@ -153,7 +153,7 @@ int pg_sqlite_del(sqlite3 *db, pg_tree const *in)
     sqlite3_prepare(db, sql, -1, &stmt, 0);
     sqlite3_free(sql);
 
-    pg_tree_foreach(cur, in)
+    pg_tree_foreach(cur, tree)
     {
         pg_item *it = pg_tree_entry(cur);
         if (a_str_len(it->text))
