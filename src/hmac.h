@@ -19,9 +19,9 @@
 typedef struct hmac_s
 {
     hash_u state_;
-    unsigned int outsiz;
     hash_s const *hash_;
     unsigned char buf[HMAC_BUFSIZ];
+    unsigned int outsiz;
 } hmac_s;
 
 #if defined(__GNUC__) || defined(__clang__)
