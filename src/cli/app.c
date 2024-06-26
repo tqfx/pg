@@ -60,7 +60,7 @@ void app_log(unsigned int num, ...)
 #define STATUS_INIT (1 << 0)
 #define STATUS_DONE (1 << 1)
 #define STATUS_DUMP (1 << 2)
-#define STATUS_RULE (1 << 3)
+#define STATUS_ISV2 (1 << 3)
 
 #pragma pack(push, 4)
 static struct
@@ -106,7 +106,7 @@ int app_gen(pg_item const *item, char const *code)
 
     char *out = 0;
     int (*gen)(pg_view const *, char const *, char **) = pg_v1;
-    if (STATUS_IS1(STATUS_RULE)) { gen = pg_v2; }
+    if (STATUS_IS1(STATUS_ISV2)) { gen = pg_v2; }
     if (gen(&view, code, &out))
     {
         app_log(2, TEXT_RED, s_failure, TEXT_TURQUOISE, view.text);
@@ -171,10 +171,9 @@ int app_init(char const *fname, a_str const *code, a_str const *rule)
         local.code = a_str_ptr(code);
     }
 
-    if (a_str_len(rule))
+    if (a_str_len(rule) && pg_init(a_str_ptr(rule), ",") > 2)
     {
-        pg_v2_init(a_str_ptr(rule), ",");
-        STATUS_SET(STATUS_RULE);
+        STATUS_SET(STATUS_ISV2);
     }
 
     return ok;

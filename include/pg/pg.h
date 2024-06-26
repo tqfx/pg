@@ -109,9 +109,8 @@ PG_PUBLIC void *pg_digest(void const *pdata, size_t nbyte, unsigned int cases, v
 PG_PUBLIC void *pg_digest_lower(void const *pdata, size_t nbyte, void *out);
 PG_PUBLIC void *pg_digest_upper(void const *pdata, size_t nbyte, void *out);
 
+PG_PUBLIC int pg_init(char *s, char const *sep);
 PG_PUBLIC int pg_v1(pg_view const *ctx, char const *code, char **out);
-
-PG_PUBLIC void pg_v2_init(char *s, char const *sep);
 PG_PUBLIC int pg_v2(pg_view const *ctx, char const *code, char **out);
 
 PG_PUBLIC pg_item *pg_item_new(void);

@@ -113,13 +113,102 @@ void *pg_digest_upper(void const *pdata, size_t nbyte, void *out)
     return pg_digest(pdata, nbyte, 1, out);
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif /* __GNUC__ || __clang__ */
+
+#undef N
+#define N 61
+
+static struct
+{
+    /* points to rule data */
+    char const *r0;
+    char const *r1;
+    char const *r2;
+    char const *r3;
+    /* length for rule data */
+    unsigned int l0;
+    unsigned int l1;
+    unsigned int l2;
+    unsigned int l3;
+    /* character table */
+    const char ch[N];
+} stat = {
+    .r0 = 0,
+    .r1 = 0,
+    .r2 = 0,
+    .r3 = 0,
+    .l0 = 0,
+    .l1 = 0,
+    .l2 = 0,
+    .l3 = 0,
+    .ch = {
+        /* clang-format off */
+        'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h',
+        'H', 'i', 'j', 'J', 'k', 'K', 'l', 'L', 'm', 'M', '0', '1', '2', '3', '4', 'I',
+        '5', '6', '7', '8', '9', 'n', 'N', 'o', 'p', 'P', 'q', 'Q', 'r', 'R', 's',
+        'S', 't', 'T', 'u', 'U', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z',
+        /* clang-format on */
+    },
+};
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ || __clang__ */
+
+int pg_init(char *s, char const *sep)
+{
+    int n = 0;
+    if (!s) { return n; }
+    /* Set the rules */
+    for (stat.r0 = s, stat.l0 = 0; *s; ++s, ++stat.l0)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    if (stat.l0) { ++n; }
+    for (stat.r1 = s, stat.l1 = 0; *s; ++s, ++stat.l1)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    if (stat.l1) { ++n; }
+    for (stat.r2 = s, stat.l2 = 0; *s; ++s, ++stat.l2)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    if (stat.l2) { ++n; }
+    for (stat.r3 = s, stat.l3 = 0; *s; ++s, ++stat.l3)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    if (stat.l3) { ++n; }
+    return n;
+}
+
 int pg_v1(pg_view const *ctx, char const *code, char **out)
 {
-    if (ctx->text == 0) { return -3; }
-    if (ctx->misc == 0 && ctx->type == PG_TYPE_OTHER) { return -2; }
     hash_s const *hash = tohash(ctx->hash);
+    if (ctx->text == 0 || code == 0) { return -3; }
     unsigned int lcode = (unsigned int)strlen(code);
     unsigned int ltext = (unsigned int)strlen(ctx->text);
+    if (ctx->misc == 0 && ctx->type == PG_TYPE_OTHER) { return -2; }
     if ((ctx->size == 0) || (lcode == 0) || (ltext == 0)) { return -1; }
 
     unsigned char count = 0;
@@ -128,8 +217,13 @@ int pg_v1(pg_view const *ctx, char const *code, char **out)
     unsigned int length = ctx->size < outsiz ? ctx->size : outsiz;
     unsigned char *msg = (unsigned char *)hmac(ctx->text, ltext, code, lcode, hash, 0);
 
-    char *buf0 = hmac("kise", 4, msg, outsiz, hash, 0);
-    char *buf1 = hmac("snow", 4, msg, outsiz, hash, 0);
+    char const *kise = stat.l0 ? stat.r0 : "kise";
+    unsigned int kise_n = stat.l0 ? stat.l0 : 4;
+    char const *snow = stat.l1 ? stat.r1 : "snow";
+    unsigned int snow_n = stat.l1 ? stat.l1 : 4;
+
+    char *buf0 = hmac(kise, kise_n, msg, outsiz, hash, 0);
+    char *buf1 = hmac(snow, snow_n, msg, outsiz, hash, 0);
 
     *out = (char *)calloc(length + 1, sizeof(char));
     for (unsigned int i = 0; i != length; ++i)
@@ -200,98 +294,13 @@ int pg_v1(pg_view const *ctx, char const *code, char **out)
     return 0;
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif /* __GNUC__ || __clang__ */
-
-#undef N
-#define N 61
-
-static struct
-{
-    /* points to rule data */
-    char const *r0;
-    char const *r1;
-    char const *r2;
-    char const *r3;
-    /* length for rule data */
-    unsigned int l0;
-    unsigned int l1;
-    unsigned int l2;
-    unsigned int l3;
-    /* character table */
-    const char ch[N];
-} stat[1] = {
-    {
-        .r0 = 0,
-        .r1 = 0,
-        .r2 = 0,
-        .r3 = 0,
-        .l0 = 0,
-        .l1 = 0,
-        .l2 = 0,
-        .l3 = 0,
-        .ch = {
-            /* clang-format off */
-            'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h',
-            'H', 'i', 'j', 'J', 'k', 'K', 'l', 'L', 'm', 'M', '0', '1', '2', '3', '4', 'I',
-            '5', '6', '7', '8', '9', 'n', 'N', 'o', 'p', 'P', 'q', 'Q', 'r', 'R', 's',
-            'S', 't', 'T', 'u', 'U', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z',
-            /* clang-format on */
-        },
-    },
-};
-
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic pop
-#endif /* __GNUC__ || __clang__ */
-
-void pg_v2_init(char *s, char const *sep)
-{
-    if (!s) { return; }
-    /* Set the rules */
-    for (stat->r0 = s, stat->l0 = 0; *s; ++s, ++stat->l0)
-    {
-        if (strchr(sep, *s))
-        {
-            *s++ = 0;
-            break;
-        }
-    }
-    for (stat->r1 = s, stat->l1 = 0; *s; ++s, ++stat->l1)
-    {
-        if (strchr(sep, *s))
-        {
-            *s++ = 0;
-            break;
-        }
-    }
-    for (stat->r2 = s, stat->l2 = 0; *s; ++s, ++stat->l2)
-    {
-        if (strchr(sep, *s))
-        {
-            *s++ = 0;
-            break;
-        }
-    }
-    for (stat->r3 = s, stat->l3 = 0; *s; ++s, ++stat->l3)
-    {
-        if (strchr(sep, *s))
-        {
-            *s++ = 0;
-            break;
-        }
-    }
-}
-
 int pg_v2(pg_view const *ctx, char const *code, char **out)
 {
-    if (ctx->text == 0) { return -3; }
-    if (ctx->type == PG_TYPE_OTHER && ctx->misc == 0) { return -2; }
     hash_s const *hash = tohash(ctx->hash);
+    if (ctx->text == 0 || code == 0) { return -3; }
     unsigned int lword = (unsigned int)strlen(code);
     unsigned int ltext = (unsigned int)strlen(ctx->text);
+    if (ctx->misc == 0 && ctx->type == PG_TYPE_OTHER) { return -2; }
     if ((ctx->size == 0) || (lword == 0) || (ltext == 0)) { return -1; }
 
     unsigned char count = 0;
@@ -300,10 +309,10 @@ int pg_v2(pg_view const *ctx, char const *code, char **out)
     unsigned int length = ctx->size < outsiz ? ctx->size : outsiz;
     unsigned char *msg = (unsigned char *)hmac(ctx->text, ltext, code, lword, hash, 0);
 
-    char *buf0 = hmac(stat->r0, stat->l0, msg, outsiz, hash, 0);
-    char *buf1 = hmac(stat->r1, stat->l1, msg, outsiz, hash, 0);
-    char *buf2 = hmac(stat->r2, stat->l2, msg, outsiz, hash, 0);
-    char *buf3 = hmac(stat->r3, stat->l3, msg, outsiz, hash, 0);
+    char *buf0 = hmac(stat.r0, stat.l0, msg, outsiz, hash, 0);
+    char *buf1 = hmac(stat.r1, stat.l1, msg, outsiz, hash, 0);
+    char *buf2 = hmac(stat.r2, stat.l2, msg, outsiz, hash, 0);
+    char *buf3 = hmac(stat.r3, stat.l3, msg, outsiz, hash, 0);
 
     *out = (char *)calloc(length + 1, sizeof(char));
     for (unsigned int i = 0; i != length; ++i)
@@ -325,7 +334,7 @@ int pg_v2(pg_view const *ctx, char const *code, char **out)
             }
             ++num[x];
 
-            (*out)[i] = stat->ch[x];
+            (*out)[i] = stat.ch[x];
             break;
         }
 #undef N
