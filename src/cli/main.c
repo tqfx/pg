@@ -197,7 +197,7 @@ Copyright (C) 2020-2024 tqfx, All rights reserved.";
 static int main_app(void);
 int main(int argc, char *argv[])
 {
-    char const *shortopts = "?nscdvr:p:g::a:h:m:t:l:i:o:f:";
+    char const *shortopts = "?12nscdvr:p:g::a:h:m:t:l:i:o:f:";
     static struct option const longopts[] = {
         {"help", no_argument, 0, '?'},
         {"number", no_argument, 0, 'n'},
@@ -225,6 +225,14 @@ int main(int argc, char *argv[])
     {
         switch (ok)
         {
+        case '1':
+            OPTION_SET(1 << 8);
+            OPTION_CLR(1 << 9);
+            break;
+        case '2':
+            OPTION_CLR(1 << 8);
+            OPTION_SET(1 << 9);
+            break;
         case 'n':
             OPTION_SET(OPTION_NUMBER);
             break;
@@ -351,7 +359,7 @@ int main(int argc, char *argv[])
 
 static int main_app(void)
 {
-    app_init(local.file, &local.code, &local.rule);
+    app_init(local.file, &local.code, &local.rule, local.option >> 8);
 
     if (local.import && local.export)
     {
