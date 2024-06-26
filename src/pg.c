@@ -247,18 +247,42 @@ static struct
 #pragma GCC diagnostic pop
 #endif /* __GNUC__ || __clang__ */
 
-void pg_v2_init(void const *r0, void const *r1, void const *r2, void const *r3)
+void pg_v2_init(char *s, char const *sep)
 {
+    if (!s) { return; }
     /* Set the rules */
-    stat->r0 = (char const *)r0;
-    stat->r1 = (char const *)r1;
-    stat->r2 = (char const *)r2;
-    stat->r3 = (char const *)r3;
-    /* Set the rule length */
-    stat->l0 = r0 ? (unsigned int)strlen(stat->r0) : 0;
-    stat->l1 = r1 ? (unsigned int)strlen(stat->r1) : 0;
-    stat->l2 = r2 ? (unsigned int)strlen(stat->r2) : 0;
-    stat->l3 = r3 ? (unsigned int)strlen(stat->r3) : 0;
+    for (stat->r0 = s, stat->l0 = 0; *s; ++s, ++stat->l0)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    for (stat->r1 = s, stat->l1 = 0; *s; ++s, ++stat->l1)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    for (stat->r2 = s, stat->l2 = 0; *s; ++s, ++stat->l2)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
+    for (stat->r3 = s, stat->l3 = 0; *s; ++s, ++stat->l3)
+    {
+        if (strchr(sep, *s))
+        {
+            *s++ = 0;
+            break;
+        }
+    }
 }
 
 int pg_v2(pg_view const *ctx, char const *code, char **out)

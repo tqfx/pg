@@ -173,44 +173,7 @@ int app_init(char const *fname, a_str const *code, a_str const *rule)
 
     if (a_str_len(rule))
     {
-        char const *r0;
-        char const *r1;
-        char const *r2;
-        char const *r3;
-        char *s = a_str_ptr(rule);
-        for (r0 = s; *s; ++s)
-        {
-            if (*s == ',')
-            {
-                *s++ = 0;
-                break;
-            }
-        }
-        for (r1 = s; *s; ++s)
-        {
-            if (*s == ',')
-            {
-                *s++ = 0;
-                break;
-            }
-        }
-        for (r2 = s; *s; ++s)
-        {
-            if (*s == ',')
-            {
-                *s++ = 0;
-                break;
-            }
-        }
-        for (r3 = s; *s; ++s)
-        {
-            if (*s == ',')
-            {
-                *s++ = 0;
-                break;
-            }
-        }
-        pg_v2_init(r0, r1, r2, r3);
+        pg_v2_init(a_str_ptr(rule), ",");
         STATUS_SET(STATUS_RULE);
     }
 
