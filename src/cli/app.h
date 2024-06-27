@@ -15,7 +15,7 @@ extern "C" {
 void app_log(unsigned int n, ...);
 int app_gen(pg_item const *view, char const *code);
 
-int app_init(char const *fname, a_str const *code, a_str const *rule, int ver);
+int app_init(char const *fname, a_str const *code, a_str const *rule, int flag);
 int app_exit(void);
 
 int app_create(a_vec const *item);

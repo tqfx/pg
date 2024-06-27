@@ -141,7 +141,7 @@ int app_gen(pg_item const *item, char const *code)
     return A_SUCCESS;
 }
 
-int app_init(char const *fname, a_str const *code, a_str const *rule, int ver)
+int app_init(char const *fname, a_str const *code, a_str const *rule, int flag)
 {
     if (STATUS_IS1(STATUS_INIT))
     {
@@ -175,8 +175,8 @@ int app_init(char const *fname, a_str const *code, a_str const *rule, int ver)
     {
         STATUS_SET(STATUS_ISV2);
     }
-    if ((ver & 3) == 2) { STATUS_SET(STATUS_ISV2); }
-    if ((ver & 3) == 1) { STATUS_CLR(STATUS_ISV2); }
+    if (flag & (1 << 8)) { STATUS_CLR(STATUS_ISV2); }
+    if (flag & (1 << 9)) { STATUS_SET(STATUS_ISV2); }
 
     return ok;
 }

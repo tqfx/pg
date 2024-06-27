@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
 
 static int main_app(void)
 {
-    app_init(local.file, &local.code, &local.rule, local.option >> 8);
+    app_init(local.file, &local.code, &local.rule, local.option);
 
     if (local.import && local.export)
     {
