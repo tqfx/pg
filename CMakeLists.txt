@@ -89,6 +89,11 @@ if(PG_SANITIZE)
   target_link_sanitize(pg-cli)
 endif()
 
+include(GNUInstallDirs)
+install(TARGETS pg-cli
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
 set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses)
 
@@ -112,4 +117,8 @@ if(CURSES_FOUND)
     target_compile_sanitize(pg-tui)
     target_link_sanitize(pg-tui)
   endif()
+
+  install(TARGETS pg-tui
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
 endif()
