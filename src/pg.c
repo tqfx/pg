@@ -202,7 +202,7 @@ int pg_init(char *s, char const *sep)
     return n;
 }
 
-int pg_v1(pg_view const *ctx, char const *code, char **out)
+int pg_gen1(pg_view const *ctx, char const *code, char **out)
 {
     hash_s const *hash = tohash(ctx->hash);
     if (ctx->text == 0 || code == 0) { return -3; }
@@ -294,7 +294,7 @@ int pg_v1(pg_view const *ctx, char const *code, char **out)
     return 0;
 }
 
-int pg_v2(pg_view const *ctx, char const *code, char **out)
+int pg_gen2(pg_view const *ctx, char const *code, char **out)
 {
     hash_s const *hash = tohash(ctx->hash);
     if (ctx->text == 0 || code == 0) { return -3; }

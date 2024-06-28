@@ -105,8 +105,8 @@ int app_gen(pg_item const *item, char const *code)
     }
 
     char *out = 0;
-    int (*gen)(pg_view const *, char const *, char **) = pg_v1;
-    if (STATUS_IS1(STATUS_ISV2)) { gen = pg_v2; }
+    int (*gen)(pg_view const *, char const *, char **) = pg_gen1;
+    if (STATUS_IS1(STATUS_ISV2)) { gen = pg_gen2; }
     if (gen(&view, code, &out))
     {
         app_log(2, TEXT_RED, s_failure, TEXT_TURQUOISE, view.text);

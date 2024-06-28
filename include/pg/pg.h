@@ -4,27 +4,7 @@
 #include "a/avl.h"
 #include "a/str.h"
 
-/* attribute visibility */
-#if defined(_WIN32) || defined(__CYGWIN__)
-#define PG_EXPORT __declspec(dllexport)
-#define PG_IMPORT __declspec(dllimport)
-#define PG_HIDDEN
-#elif A_PREREQ_GNUC(4, 0) || __has_attribute(visibility)
-#define PG_EXPORT __attribute__((__visibility__("default")))
-#define PG_IMPORT __attribute__((__visibility__("default")))
-#define PG_HIDDEN __attribute__((__visibility__("hidden")))
-#else /* !visibility */
-#define PG_EXPORT
-#define PG_IMPORT
-#define PG_HIDDEN
-#endif /* visibility */
-#if defined(PG_EXPORTS)
-#define PG_PUBLIC PG_EXPORT
-#elif defined(PG_IMPORTS)
-#define PG_PUBLIC PG_IMPORT
-#else /* !PG_PUBLIC */
-#define PG_PUBLIC
-#endif /* PG_PUBLIC */
+#define PG_PUBLIC A_PUBLIC
 
 typedef enum pg_type
 {
@@ -110,8 +90,8 @@ PG_PUBLIC void *pg_digest_lower(void const *pdata, size_t nbyte, void *out);
 PG_PUBLIC void *pg_digest_upper(void const *pdata, size_t nbyte, void *out);
 
 PG_PUBLIC int pg_init(char *s, char const *sep);
-PG_PUBLIC int pg_v1(pg_view const *ctx, char const *code, char **out);
-PG_PUBLIC int pg_v2(pg_view const *ctx, char const *code, char **out);
+PG_PUBLIC int pg_gen1(pg_view const *ctx, char const *code, char **out);
+PG_PUBLIC int pg_gen2(pg_view const *ctx, char const *code, char **out);
 
 PG_PUBLIC pg_item *pg_item_new(void);
 PG_PUBLIC void pg_item_die(pg_item *ctx);
