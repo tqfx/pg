@@ -285,6 +285,7 @@ int main(int argc, char *argv[])
         case 'v':
             printf("sqlite %s\n", SQLITE_VERSION);
             printf("cjson %s\n", cJSON_Version());
+            printf("liba %s\n", A_VERSION);
             printf("pg 0.1.0\n");
             exit(EXIT_SUCCESS);
         case '?':
