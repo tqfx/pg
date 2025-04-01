@@ -1,21 +1,20 @@
 #define LIBA_POLY_C
 #include "a/poly.h"
 
-a_float *a_poly_swap(a_float *a, a_size n)
+void a_poly_swap_(a_real *a, a_real *b)
 {
-    a_float *b = a, *c = a + n;
-    for (a_float x; b < --c; ++b)
+    for (; a < --b; ++a)
     {
-        x = *b;
-        *b = *c;
-        *c = x;
+        a_real _c;
+        _c = *a;
+        *a = *b;
+        *b = _c;
     }
-    return a;
 }
 
-a_float a_poly_eval_(a_float const *a, a_float const *b, a_float x)
+a_real a_poly_eval_(a_real const *a, a_real const *b, a_real x)
 {
-    a_float y;
+    a_real y;
     for (y = *--b; b > a;)
     {
         y = y * x + *--b;
@@ -23,12 +22,48 @@ a_float a_poly_eval_(a_float const *a, a_float const *b, a_float x)
     return y;
 }
 
-a_float a_poly_evar_(a_float const *a, a_float const *b, a_float x)
+a_real a_poly_evar_(a_real const *a, a_real const *b, a_real x)
 {
-    a_float y;
+    a_real y;
     for (y = *a; ++a < b;)
     {
         y = y * x + *a;
     }
     return y;
+}
+
+#include "a/math.h"
+
+void a_poly_xTx(a_uint m, a_real const *x, a_uint n, a_real *A)
+{
+    a_uint r, c, i;
+    for (r = 0; r < n; ++r)
+    {
+        a_real *const Ar = A + (a_size)n * r;
+        for (c = 0; c <= r; ++c)
+        {
+            a_real *const Ac = A + (a_size)n * c;
+            a_real const d = r + c;
+            a_real val = 0;
+            for (i = 0; i < m; ++i)
+            {
+                val += a_real_pow(x[i], d);
+            }
+            Ac[r] = Ar[c] = val;
+        }
+    }
+}
+
+void a_poly_xTy(a_uint m, a_real const *x, a_real const *y, a_uint n, a_real *b)
+{
+    a_uint d, i;
+    for (d = 0; d < n; ++d)
+    {
+        a_real val = 0;
+        for (i = 0; i < m; ++i)
+        {
+            val += a_real_pow(x[i], d) * y[i];
+        }
+        b[d] = val;
+    }
 }

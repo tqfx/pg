@@ -73,12 +73,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "[Cc]lang|LLVM" OR CMAKE_CXX_COMPILER_ID MATCHES 
   # https://releases.llvm.org/4.0.1/tools/clang/DiagnosticsReference.html
   # https://clang.llvm.org/docs/DiagnosticsReference.html
   warnings_flag_cx(-Weverything)
+  warnings_flag_cx(-Wno-unsafe-buffer-usage)
+  warnings_flag_xx(-Wno-c++98-compat-pedantic)
   if(MINGW)
     warnings_flag_cx(-Wno-used-but-marked-unused)
   endif()
-  warnings_flag_cc(-Wno-declaration-after-statement)
-  warnings_flag_xx(-Wno-c++98-compat-pedantic)
-  warnings_flag_cx(-Wno-unsafe-buffer-usage)
 elseif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   # https://gcc.gnu.org/onlinedocs/gcc-3.0.3/gcc/Warning-Options.html
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -131,7 +130,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   warnings_flag_cx(-Wlogical-op) # 4.3+
 elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC" OR CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # https://learn.microsoft.com/cpp/error-messages/compiler-warnings
-  warnings_flag_cx(/sdl /Wall)
+  warnings_flag_cx(/Wall)
   warnings_flag_cx(/wd4464) # relative include path contains '..'
   warnings_flag_cx(/wd4514) # 'function' : unreferenced inline function has been removed
   warnings_flag_cx(/wd4710) # 'function' : function not inlined

@@ -153,11 +153,12 @@ A_EXTERN void a_buf_dtor(a_buf *ctx, void (*dtor)(void *));
 A_EXTERN void a_buf_move(a_buf *ctx, a_buf *obj);
 
 /*!
- @brief drop all the elements for a pointer to buffer structure
+ @brief set number of element for a pointer to buffer structure
  @param[in] ctx points to an instance of buffer structure
+ @param[in] num new number of current element
  @param[in] dtor current element destructor
 */
-A_EXTERN void a_buf_drop(a_buf *ctx, void (*dtor)(void *));
+A_EXTERN void a_buf_setn(a_buf *ctx, a_size num, void (*dtor)(void *));
 
 /*!
  @brief swap elements lhs and rhs for a pointer to buffer structure
@@ -338,6 +339,7 @@ A_INTERN void *a_buf_pull(a_buf *ctx) { return a_buf_pull_back(ctx); }
  @param ctx points to an instance of buffer structure
 */
 #define a_buf_forenum(i, ctx) a_forenum(a_size, i, (ctx)->num_)
+#define A_BUF_FORENUM(I, i, ctx) A_FORENUM(I, i, (ctx)->num_)
 
 /*!
  @brief iterate over a buffer in reverse
@@ -352,6 +354,7 @@ A_INTERN void *a_buf_pull(a_buf *ctx) { return a_buf_pull_back(ctx); }
  @param ctx points to an instance of buffer structure
 */
 #define a_buf_forenum_reverse(i, ctx) a_forenum_reverse(a_size, i, (ctx)->num_)
+#define A_BUF_FORENUM_REVERSE(I, i, ctx) A_FORENUM_REVERSE(I, i, (ctx)->num_)
 
 /*!
  @brief iterate over a buffer
@@ -362,11 +365,12 @@ A_INTERN void *a_buf_pull(a_buf *ctx) { return a_buf_pull_back(ctx); }
  }
  @endcode
  @param T the prefix of the element type
- @param P the suffix of the element type
+ @param S the suffix of the element type
  @param it the &a_buf to use as a loop counter
  @param ctx points to an instance of buffer structure
 */
-#define a_buf_foreach(T, P, it, ctx) a_foreach(T, P, it, (ctx)->ptr_, (ctx)->num_)
+#define a_buf_foreach(T, S, it, ctx) a_foreach(T, S, it, (ctx)->ptr_, (ctx)->num_)
+#define A_BUF_FOREACH(T, it, at, ctx) A_FOREACH(T, it, at, (ctx)->ptr_, (ctx)->num_)
 
 /*!
  @brief iterate over a buffer in reverse
@@ -377,11 +381,12 @@ A_INTERN void *a_buf_pull(a_buf *ctx) { return a_buf_pull_back(ctx); }
  }
  @endcode
  @param T the prefix of the element type
- @param P the suffix of the element type
+ @param S the suffix of the element type
  @param it the &a_buf to use as a loop counter
  @param ctx points to an instance of buffer structure
 */
-#define a_buf_foreach_reverse(T, P, it, ctx) a_foreach_reverse(T, P, it, (ctx)->ptr_, (ctx)->num_)
+#define a_buf_foreach_reverse(T, S, it, ctx) a_foreach_reverse(T, S, it, (ctx)->ptr_, (ctx)->num_)
+#define A_BUF_FOREACH_REVERSE(T, it, at, ctx) A_FOREACH_REVERSE(T, it, at, (ctx)->ptr_, (ctx)->num_)
 
 /*! @} a_buf */
 

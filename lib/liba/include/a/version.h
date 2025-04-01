@@ -28,13 +28,13 @@
 
 /*! algorithm library version patch */
 #ifndef A_VERSION_PATCH
-#define A_VERSION_PATCH 14
+#define A_VERSION_PATCH 15
 #endif /* A_VERSION_PATCH */
 #undef patch
 
 /*! algorithm library version tweak */
 #ifndef A_VERSION_TWEAK
-#define A_VERSION_TWEAK 20240630
+#define A_VERSION_TWEAK 20250131
 #endif /* A_VERSION_TWEAK */
 
 #define A_VERSION_TOSTR(X) A_CAST_1(X)
@@ -48,13 +48,9 @@ typedef struct a_version a_version;
 #define A_VERSION_1(major) A_VERSION_2(major, 0)
 #define A_VERSION_2(major, minor) A_VERSION_3(major, minor, 0)
 #define A_VERSION_3(major, minor, third) A_VERSION_4(major, minor, third, 0)
-// clang-format off
-#if defined(__cplusplus)
+/* clang-format off */
 #define A_VERSION_4(major, minor, third, extra) {major, minor, third, extra, {'.', 0, 0, 0}}
-#else /* !__cplusplus */
-#define A_VERSION_4(major, minor, third, extra) (a_version){major, minor, third, extra, {'.', 0, 0, 0}}
-#endif /* __cplusplus */
-// clang-format on
+/* clang-format on */
 
 #if defined(__cplusplus)
 namespace a
@@ -185,19 +181,19 @@ A_EXTERN void a_version_alpha(a_version const *ctx, char alpha[5]);
 */
 struct a_version
 {
-    unsigned int major; //!< major number
-    unsigned int minor; //!< minor number
-    unsigned int third; //!< third number
-    unsigned int extra; //!< extra number
-    char alpha[4]; //!< alphabet
+    unsigned int major; /*!< major number */
+    unsigned int minor; /*!< minor number */
+    unsigned int third; /*!< third number */
+    unsigned int extra; /*!< extra number */
+    char alpha_[4]; /*!< alphabet */
 #if defined(__cplusplus)
+    A_INLINE void alpha(char str[5]) const
+    {
+        a_version_alpha(this, str);
+    }
     A_INLINE void set_alpha(char const *str)
     {
         a_version_set_alpha(this, str);
-    }
-    A_INLINE void get_alpha(char str[5]) const
-    {
-        a_version_alpha(this, str);
     }
     A_INLINE unsigned int parse(char const *ver)
     {

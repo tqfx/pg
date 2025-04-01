@@ -55,17 +55,17 @@ else()
 endif()
 
 set(LIBA_INSTALL "" CACHE STRING "Specify installation behavior")
-set(LIBA_FLOAT 8 CACHE STRING "floating-point number bytes")
-set_property(CACHE LIBA_FLOAT PROPERTY STRINGS 4 8 16)
+set(LIBA_REAL 8 CACHE STRING "floating-point number bytes")
+set_property(CACHE LIBA_REAL PROPERTY STRINGS 4 8 16)
 include(CheckLibraryExists)
 
 function(check_math VARIABLE FUNCTION)
   get_filename_component(LOCATION "${LIBA_MATH}" DIRECTORY)
   list(APPEND CMAKE_REQUIRED_LIBRARIES ${LIBA_MATH})
 
-  if(LIBA_FLOAT GREATER 8)
+  if(LIBA_REAL GREATER 8)
     set(FUNCTION ${FUNCTION}l)
-  elseif(LIBA_FLOAT EQUAL 4)
+  elseif(LIBA_REAL EQUAL 4)
     set(FUNCTION ${FUNCTION}f)
   endif()
 
@@ -74,10 +74,13 @@ function(check_math VARIABLE FUNCTION)
   )
 endfunction()
 
+check_math(A_HAVE_ASINH asinh)
+check_math(A_HAVE_ACOSH acosh)
+check_math(A_HAVE_ATANH atanh)
 check_math(A_HAVE_EXPM1 expm1)
 check_math(A_HAVE_LOG1P log1p)
-check_math(A_HAVE_HYPOT hypot)
 check_math(A_HAVE_ATAN2 atan2)
+check_math(A_HAVE_HYPOT hypot)
 check_math(A_HAVE_CSQRT csqrt)
 check_math(A_HAVE_CPOW cpow)
 check_math(A_HAVE_CEXP cexp)
@@ -141,6 +144,14 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.14)
   check_pie_supported()
 endif()
 
+function(target_msvc_no_manifest)
+  foreach(target ${ARGN})
+    get_property(LINK_FLAGS TARGET ${target} PROPERTY LINK_FLAGS)
+    string_append(LINK_FLAGS /MANIFEST:NO)
+    set_property(TARGET ${ARGN} PROPERTY LINK_FLAGS "${LINK_FLAGS}")
+  endforeach()
+endfunction()
+
 function(set_library_options)
   if(LIBA_IWYU AND IWYU_FOUND)
     add_include_what_you_use(TARGETS ${ARGN})
@@ -160,6 +171,10 @@ function(set_library_options)
 
   if(CMAKE_C_COMPILER_ID MATCHES "TinyCC" AND CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL .lib)
     set_property(TARGET ${ARGN} PROPERTY IMPORT_SUFFIX .def)
+  endif()
+
+  if(CMAKE_C_COMPILER_ID MATCHES "MSVC" AND NOT MSVC_VERSION LESS 1400)
+    target_msvc_no_manifest(${ARGN})
   endif()
 
   if(LIBA_WARNINGS)
@@ -569,8 +584,6 @@ if(NOT CMAKE_VERSION VERSION_LESS 3.9 AND DOXYGEN_FOUND)
   set(DOXYGEN_PREDEFINED
     "__STDC_VERSION__=201112L"
     "__cplusplus=201103L"
-    "A_BYTE_ORDER=1234"
-    "A_SIZE_POINTER=8"
     "A_INLINE:=inline"
     "A_NONULL():="
     "A_FORMAT():="

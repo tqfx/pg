@@ -37,14 +37,14 @@
 */
 typedef struct a_lpf
 {
-    a_float alpha; //!< filter coefficient [0,1]
-    a_float output; //!< filter output
+    a_real alpha; /*!< filter coefficient [0,1] */
+    a_real output; /*!< filter output */
 #if defined(__cplusplus)
-    A_INLINE void gen(a_float fc, a_float ts)
+    A_INLINE void gen(a_real fc, a_real ts)
     {
-        alpha = ts / (A_FLOAT_1_TAU / fc + ts);
+        alpha = ts / (A_REAL_1_TAU / fc + ts);
     }
-    A_INLINE a_float operator()(a_float x)
+    A_INLINE a_real operator()(a_real x)
     {
         output *= 1 - alpha;
         output += x * alpha;
@@ -59,16 +59,11 @@ namespace a
 typedef struct a_lpf lpf;
 } /* namespace a */
 #endif /* __cplusplus */
-// clang-format off
-#if defined(__cplusplus)
-#define A_LPF_INIT(alpha) {a_float_c(alpha), 0}
-#define A_LPF_INIT2(fc, ts) {A_LPF_GEN(fc, ts), 0}
-#else /* !__cplusplus */
-#define A_LPF_INIT(alpha) (a_lpf){a_float_c(alpha), 0}
-#define A_LPF_INIT2(fc, ts) (a_lpf){A_LPF_GEN(fc, ts), 0}
-#endif /* __cplusplus */
-// clang-format on
-#define A_LPF_GEN(fc, ts) (a_float_c(ts) / (A_FLOAT_1_TAU / a_float_c(fc) + a_float_c(ts)))
+/* clang-format off */
+#define A_LPF_1(alpha) {a_real_c(alpha), 0}
+#define A_LPF_2(fc, ts) {A_LPF_GEN(fc, ts), 0}
+/* clang-format on */
+#define A_LPF_GEN(fc, ts) (a_real_c(ts) / (A_REAL_1_TAU / a_real_c(fc) + a_real_c(ts)))
 
 /*!
  @brief generate for Low Pass Filter
@@ -83,9 +78,9 @@ typedef struct a_lpf lpf;
  @param[in] ts sampling time unit(s)
  @return filter coefficient [0,1]
 */
-A_INTERN a_float a_lpf_gen(a_float fc, a_float ts)
+A_INTERN a_real a_lpf_gen(a_real fc, a_real ts)
 {
-    return ts / (A_FLOAT_1_TAU / fc + ts);
+    return ts / (A_REAL_1_TAU / fc + ts);
 }
 
 /*!
@@ -93,14 +88,14 @@ A_INTERN a_float a_lpf_gen(a_float fc, a_float ts)
  @param[in,out] ctx points to an instance of Low Pass Filter
  @param[in] alpha filter coefficient [0,1]
 */
-A_INTERN void a_lpf_init(a_lpf *ctx, a_float alpha)
+A_INTERN void a_lpf_init(a_lpf *ctx, a_real alpha)
 {
     ctx->alpha = alpha;
     ctx->output = 0;
 }
 
 /*!
- @brief calculate for Low Pass Filter
+ @brief compute for Low Pass Filter
  \f[
   V_{\mathrm o}(n)=(1-\alpha)V_{\mathrm o}(n-1)+\alpha V_{\mathrm i}(n)
  \f]
@@ -108,7 +103,7 @@ A_INTERN void a_lpf_init(a_lpf *ctx, a_float alpha)
  @param[in] x input value
  @return output value
 */
-A_INTERN a_float a_lpf_iter(a_lpf *ctx, a_float x)
+A_INTERN a_real a_lpf_iter(a_lpf *ctx, a_real x)
 {
     ctx->output *= 1 - ctx->alpha;
     ctx->output += x * ctx->alpha;

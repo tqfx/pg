@@ -1,3 +1,6 @@
+#if !defined _GNU_SOURCE && defined(__linux__)
+#define _GNU_SOURCE /* NOLINT */
+#endif /* _GNU_SOURCE */
 #include "a/version.h"
 
 unsigned int const a_version_major = A_VERSION_MAJOR;
@@ -30,46 +33,46 @@ int a_version_cmp(a_version const *lhs, a_version const *rhs)
 
 a_bool a_version_lt(a_version const *lhs, a_version const *rhs)
 {
-    if (lhs->major < rhs->major) { return A_TRUE; }
-    if (lhs->major > rhs->major) { return A_FALSE; }
-    if (lhs->minor < rhs->minor) { return A_TRUE; }
-    if (lhs->minor > rhs->minor) { return A_FALSE; }
-    if (lhs->third < rhs->third) { return A_TRUE; }
-    if (lhs->third > rhs->third) { return A_FALSE; }
-    return A_FALSE;
+    if (lhs->major < rhs->major) { return 1; }
+    if (lhs->major > rhs->major) { return 0; }
+    if (lhs->minor < rhs->minor) { return 1; }
+    if (lhs->minor > rhs->minor) { return 0; }
+    if (lhs->third < rhs->third) { return 1; }
+    if (lhs->third > rhs->third) { return 0; }
+    return 0;
 }
 
 a_bool a_version_gt(a_version const *lhs, a_version const *rhs)
 {
-    if (lhs->major > rhs->major) { return A_TRUE; }
-    if (lhs->major < rhs->major) { return A_FALSE; }
-    if (lhs->minor > rhs->minor) { return A_TRUE; }
-    if (lhs->minor < rhs->minor) { return A_FALSE; }
-    if (lhs->third > rhs->third) { return A_TRUE; }
-    if (lhs->third < rhs->third) { return A_FALSE; }
-    return A_FALSE;
+    if (lhs->major > rhs->major) { return 1; }
+    if (lhs->major < rhs->major) { return 0; }
+    if (lhs->minor > rhs->minor) { return 1; }
+    if (lhs->minor < rhs->minor) { return 0; }
+    if (lhs->third > rhs->third) { return 1; }
+    if (lhs->third < rhs->third) { return 0; }
+    return 0;
 }
 
 a_bool a_version_le(a_version const *lhs, a_version const *rhs)
 {
-    if (lhs->major < rhs->major) { return A_TRUE; }
-    if (lhs->major > rhs->major) { return A_FALSE; }
-    if (lhs->minor < rhs->minor) { return A_TRUE; }
-    if (lhs->minor > rhs->minor) { return A_FALSE; }
-    if (lhs->third < rhs->third) { return A_TRUE; }
-    if (lhs->third > rhs->third) { return A_FALSE; }
-    return A_TRUE;
+    if (lhs->major < rhs->major) { return 1; }
+    if (lhs->major > rhs->major) { return 0; }
+    if (lhs->minor < rhs->minor) { return 1; }
+    if (lhs->minor > rhs->minor) { return 0; }
+    if (lhs->third < rhs->third) { return 1; }
+    if (lhs->third > rhs->third) { return 0; }
+    return 1;
 }
 
 a_bool a_version_ge(a_version const *lhs, a_version const *rhs)
 {
-    if (lhs->major > rhs->major) { return A_TRUE; }
-    if (lhs->major < rhs->major) { return A_FALSE; }
-    if (lhs->minor > rhs->minor) { return A_TRUE; }
-    if (lhs->minor < rhs->minor) { return A_FALSE; }
-    if (lhs->third > rhs->third) { return A_TRUE; }
-    if (lhs->third < rhs->third) { return A_FALSE; }
-    return A_TRUE;
+    if (lhs->major > rhs->major) { return 1; }
+    if (lhs->major < rhs->major) { return 0; }
+    if (lhs->minor > rhs->minor) { return 1; }
+    if (lhs->minor < rhs->minor) { return 0; }
+    if (lhs->third > rhs->third) { return 1; }
+    if (lhs->third < rhs->third) { return 0; }
+    return 1;
 }
 
 a_bool a_version_eq(a_version const *lhs, a_version const *rhs)
@@ -90,18 +93,18 @@ a_bool a_version_ne(a_version const *lhs, a_version const *rhs)
 static A_INLINE char const *a_version_set_alpha_(a_version *ctx, char const *alpha)
 {
     unsigned int c = 1;
-    ctx->alpha[0] = *alpha;
+    ctx->alpha_[0] = *alpha;
     for (++alpha; isalpha((a_byte)*alpha); ++alpha)
     {
-        if (c < sizeof(ctx->alpha)) { ctx->alpha[c++] = *alpha; }
+        if (c < sizeof(ctx->alpha_)) { ctx->alpha_[c++] = *alpha; }
     }
     if (*alpha == '.')
     {
-        if (c < sizeof(ctx->alpha)) { ctx->alpha[c++] = *alpha; }
-        else { ctx->alpha[c - 1] = *alpha; }
+        if (c < sizeof(ctx->alpha_)) { ctx->alpha_[c++] = *alpha; }
+        else { ctx->alpha_[c - 1] = *alpha; }
         ++alpha;
     }
-    while (c < sizeof(ctx->alpha)) { ctx->alpha[c++] = 0; }
+    while (c < sizeof(ctx->alpha_)) { ctx->alpha_[c++] = 0; }
     return alpha;
 }
 
@@ -122,25 +125,25 @@ unsigned int a_version_parse(a_version *ctx, char const *ver)
     } u;
     u.s = ver;
     if (!ver) { return 0; }
+    if (!isdigit((a_byte)*ver)) { return 0; }
+    ctx->minor = ctx->third = ctx->extra = 0;
     ctx->major = (unsigned int)strtoul(u.s, &u.p, 10);
     if (u.s[0] == '.' && u.s[1] >= '0' && u.s[1] <= '9') { ++u.s; }
-    else { goto major; }
+    else { goto ext; }
     ctx->minor = (unsigned int)strtoul(u.s, &u.p, 10);
     if (u.s[0] == '.' && u.s[1] >= '0' && u.s[1] <= '9') { ++u.s; }
-    else { goto minor; }
+    else { goto ext; }
     ctx->third = (unsigned int)strtoul(u.s, &u.p, 10);
+ext:
     if ((u.s[0] == '.' || u.s[0] == '-' || u.s[0] == '+' || isalpha((a_byte)u.s[0])) &&
-        (isalnum((a_byte)u.s[1]) || !u.s[1])) { u.s = a_version_set_alpha_(ctx, u.s); }
-    else { goto third; }
-    ctx->extra = (unsigned int)strtoul(u.s, &u.p, 10);
-    goto extra;
-major:
-    ctx->minor = 0;
-minor:
-    ctx->third = 0;
-third:
-    ctx->extra = 0;
-extra:
+        (isalnum((a_byte)u.s[1]) || !u.s[1]))
+    {
+        u.s = a_version_set_alpha_(ctx, u.s);
+        if (isdigit((a_byte)u.s[0]))
+        {
+            ctx->extra = (unsigned int)strtoul(u.s, &u.p, 10);
+        }
+    }
     return (unsigned int)(u.s - ver);
 }
 
@@ -152,9 +155,9 @@ extra:
 void a_version_alpha(a_version const *ctx, char alpha[5])
 {
     unsigned int c;
-    for (c = 0; c < sizeof(ctx->alpha) && ctx->alpha[c]; ++c)
+    for (c = 0; c < sizeof(ctx->alpha_) && ctx->alpha_[c]; ++c)
     {
-        alpha[c] = ctx->alpha[c];
+        alpha[c] = ctx->alpha_[c];
     }
     alpha[c] = 0;
 }
@@ -163,8 +166,8 @@ unsigned int a_version_tostr(a_version const *ctx, void *pdata, a_size nbyte)
 {
     int n;
     char *p = (char *)pdata;
-    char alpha[sizeof(ctx->alpha) + 1];
-    if (ctx->extra || isalpha((a_byte)ctx->alpha[0]) || isalpha((a_byte)ctx->alpha[1]))
+    char alpha[sizeof(ctx->alpha_) + 1];
+    if (ctx->extra || isalpha((a_byte)ctx->alpha_[0]) || isalpha((a_byte)ctx->alpha_[1]))
     {
         a_version_alpha(ctx, alpha);
         n = snprintf(p, nbyte, "%u.%u.%u%s%u",

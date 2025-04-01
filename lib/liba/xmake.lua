@@ -6,7 +6,7 @@ set_project("liba")
 set_xmakever("2.5.0")
 
 -- set project version
-set_version("0.1.14", { build = "%Y%m%d" })
+set_version("0.1.15", { build = "%Y%m%d" })
 
 -- option: liba-cxx
 option("liba-cxx")
@@ -49,8 +49,8 @@ if is_mode("check") and not is_plat("mingw") then
     add_ldflags(flags)
 end
 
--- option: float
-option("liba-float")
+-- option: real
+option("liba-real")
 set_default("8")
 set_showmenu(true)
 set_category("liba")
@@ -93,20 +93,20 @@ configvar_check_csnippets(
     'int x = 1; puts(*(char *)&x ? "1234" : "4321");',
     { output = true, number = true }
 )
-float = get_config("liba-float")
+real = get_config("liba-real")
 function check_math(funcs, opt)
     for i, func in pairs(funcs) do
         local have = "A_HAVE_" .. string.upper(func)
-        if float == "16" then
+        if real == "16" then
             func = func .. "l"
         end
-        if float == "4" then
+        if real == "4" then
             func = func .. "f"
         end
         configvar_check_cfuncs(have, func, opt)
     end
 end
-local funcs = { "expm1", "log1p", "hypot", "atan2" }
+local funcs = { "asinh", "acosh", "atanh", "expm1", "log1p", "atan2", "hypot" }
 check_math(funcs, { includes = "math.h" })
 -- stylua: ignore
 local funcs = { "csqrt",
@@ -121,7 +121,7 @@ check_math(funcs, { includes = "complex.h" })
 a_have_h = path.relative(os.projectdir() .. "/$(buildir)/a.xmake.h", "include/a")
 add_defines('A_HAVE_H="' .. a_have_h .. '"', { public = true })
 set_configvar("XMAKE_VERSION", tostring(xmake.version()))
-set_configvar("A_SIZE_FLOAT", float, { quote = false })
+set_configvar("A_SIZE_REAL", real, { quote = false })
 add_configfiles("include/a.xmake.h.in")
 -- add include directories
 add_includedirs("include", { public = true })
@@ -206,7 +206,7 @@ if has_config("liba-rust") then
     set_kind("static")
     set_basename("liba")
     add_files("src/lib.rs")
-    if get_config("liba-float") == "4" then
+    if get_config("liba-real") == "4" then
         add_rcflags('--cfg=feature="float"')
     end
     add_deps("a")
