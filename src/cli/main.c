@@ -114,9 +114,13 @@ static A_INLINE void item_dtor(void *ctx)
 static void main_exit(void)
 {
     free(local.self);
+    local.self = 0;
     free(local.file);
+    local.file = 0;
     free(local.import);
+    local.import = 0;
     free(local.export);
+    local.export = 0;
     a_str_dtor(&local.rule);
     a_str_dtor(&local.code);
     a_vec_dtor(&local.item, item_dtor);
@@ -124,6 +128,8 @@ static void main_exit(void)
 
 static void main_init(void)
 {
+    char *env;
+
     atexit(main_exit);
     a_str_ctor(&local.rule);
     a_str_ctor(&local.code);
@@ -131,39 +137,39 @@ static void main_init(void)
     pg_view_ctor(&local.view);
     local.self = path_self();
 
-    char *env = getenv("PG_FILE");
+    env = getenv("PG_FILE");
     if (env) { local.file = strdup(env); }
 
     env = getenv("PG_RULE");
     if (env)
     {
-        char *p;
-        a_size n;
+        char *p = 0;
+        a_size n = 0;
         if (io_getline(env, &p, &n) > ~0)
         {
-            a_str_setn(&local.rule, p, n);
-            free(p);
+            a_str_putn(&local.rule, p, n);
         }
         else
         {
-            a_str_sets(&local.rule, env);
+            a_str_puts(&local.rule, env);
         }
+        free(p);
     }
 
     env = getenv("PG_CODE");
     if (env)
     {
-        char *p;
-        a_size n;
+        char *p = 0;
+        a_size n = 0;
         if (io_getline(env, &p, &n) > ~0)
         {
-            a_str_setn(&local.code, p, n);
-            free(p);
+            a_str_putn(&local.code, p, n);
         }
         else
         {
-            a_str_sets(&local.code, env);
+            a_str_puts(&local.code, env);
         }
+        free(p);
     }
 }
 
@@ -246,10 +252,12 @@ int main(int argc, char *argv[])
             OPTION_SET(OPTION_DELETE);
             break;
         case 'r':
-            a_str_sets(&local.rule, optarg);
+            a_str_setn_(&local.rule, 0);
+            a_str_puts(&local.rule, optarg);
             break;
         case 'p':
-            a_str_sets(&local.code, optarg);
+            a_str_setn_(&local.code, 0);
+            a_str_puts(&local.code, optarg);
             break;
         case 'g':
             local.view.text = optarg;
@@ -344,7 +352,7 @@ int main(int argc, char *argv[])
     if (local.file == 0)
     {
         a_str str = A_STR_INIT;
-        a_str_sets(&str, local.self);
+        a_str_puts(&str, local.self);
 #if defined(_WIN32)
         if (strstr(a_str_ptr(&str), ".exe"))
         {
