@@ -55,14 +55,18 @@ target_link_libraries(pg PUBLIC sqlite3 cjson)
 
 add_subdirectory(lib/liba EXCLUDE_FROM_ALL)
 
+if(PG_WARNINGS)
+  if(CMAKE_C_COMPILER_ID MATCHES "[Cc]lang|LLVM" OR CMAKE_CXX_COMPILER_ID MATCHES "[Cc]lang|LLVM")
+    warnings_flag_cc(-Wno-declaration-after-statement)
+  endif()
+
+  target_compile_warnings(pg)
+endif()
+
 if(PG_SANITIZE)
   target_link_libraries(pg PUBLIC asan)
 else()
   target_link_libraries(pg PUBLIC alib)
-endif()
-
-if(PG_WARNINGS)
-  target_compile_warnings(pg)
 endif()
 
 if(PG_SANITIZE)
