@@ -130,18 +130,17 @@ A_EXTERN void a_que_dtor(a_que *ctx, void (*dtor)(void *));
 
 /*!
  @brief initialize a pointer to queue structure by moving
- @param[in] ctx points to an instance of queue structure
- @param[in] obj input source pointing to an instance
+ @param[in] lhs points to an instance of queue structure
+ @param[in] rhs points to an instance of queue structure
 */
-A_EXTERN void a_que_move(a_que *ctx, a_que *obj);
+A_EXTERN void a_que_swap(a_que *lhs, a_que *rhs);
 
 /*!
  @brief drop all the elements for a pointer to queue structure
  @param[in] ctx points to an instance of queue structure
  @param[in] dtor current element destructor
- @return the execution state of the function
+ @return error code value
   @retval 0 success
-  @retval 1 failure
 */
 A_EXTERN int a_que_drop(a_que *ctx, void (*dtor)(void *));
 
@@ -150,9 +149,8 @@ A_EXTERN int a_que_drop(a_que *ctx, void (*dtor)(void *));
  @param[in] ctx points to an instance of queue structure
  @param[in] siz the size of the new element
  @param[in] dtor previous element destructor
- @return the execution state of the function
+ @return error code value
   @retval 0 success
-  @retval 1 failure
 */
 A_EXTERN int a_que_setz(a_que *ctx, a_size siz, void (*dtor)(void *));
 
@@ -165,17 +163,6 @@ A_EXTERN int a_que_setz(a_que *ctx, a_size siz, void (*dtor)(void *));
 */
 A_EXTERN void *a_que_at(a_que const *ctx, a_diff idx);
 #define A_QUE_AT(T, ctx, idx) a_cast_s(T *, a_que_at(ctx, idx))
-
-/*!
- @brief swap elements lhs and rhs for a pointer to queue structure
- @param[in] ctx points to an instance of queue structure
- @param[in] lhs element index on the left
- @param[in] rhs element index on the right
- @return the execution state of the function
-  @retval 0 success
-  @retval 1 failure
-*/
-A_EXTERN int a_que_swap(a_que const *ctx, a_size lhs, a_size rhs);
 
 /*!
  @brief insert sort foremost element for a pointer to queue structure

@@ -83,12 +83,12 @@ A_INTERN void *a_vec_at(a_vec const *ctx, a_size idx)
  @return specified element pointer
   @retval 0 out of bounds
 */
-A_INTERN void *a_vec_idx(a_vec const *ctx, a_diff idx)
+A_INTERN void *a_vec_of(a_vec const *ctx, a_diff idx)
 {
     a_size const num = idx >= 0 ? a_size_c(idx) : a_size_c(idx) + ctx->num_;
     return num < ctx->mem_ ? a_vec_at_(ctx, num) : A_NULL;
 }
-#define A_VEC_IDX(T, ctx, idx) a_cast_s(T *, a_vec_idx(ctx, idx))
+#define A_VEC_OF(T, ctx, idx) a_cast_s(T *, a_vec_of(ctx, idx))
 
 /*!
  @brief access top element for a pointer to vector structure
@@ -169,42 +169,28 @@ A_EXTERN void a_vec_ctor(a_vec *ctx, a_size size);
 A_EXTERN void a_vec_dtor(a_vec *ctx, void (*dtor)(void *));
 
 /*!
- @brief initialize a pointer to vector structure by copying
- @param[in] ctx points to an instance of vector structure
- @param[in] obj input source pointing to an instance
- @param[in] dup a function that copies elements
-  @arg 0 use function a_copy to copy elements
- @return the execution state of the function
-  @retval 0 success
-  @retval 1 failure
+ @brief swap the contents of two pointers to vector structure
+ @param[in] lhs points to an instance of vector structure
+ @param[in] rhs points to an instance of vector structure
 */
-A_EXTERN int a_vec_copy(a_vec *ctx, a_vec const *obj, int (*dup)(void *, void const *));
+A_EXTERN void a_vec_swap(a_vec *lhs, a_vec *rhs);
 
 /*!
- @brief initialize a pointer to vector structure by moving
+ @brief set memory of element for a pointer to vector structure
  @param[in] ctx points to an instance of vector structure
- @param[in] obj input source pointing to an instance
-*/
-A_EXTERN void a_vec_move(a_vec *ctx, a_vec *obj);
-
-/*!
- @brief set memory of element for a pointer to string structure
- @param[in] ctx points to an instance of string structure
  @param[in] mem new memory of current element
- @return the execution state of the function
+ @return error code value
   @retval 0 success
-  @retval 1 failure
 */
 A_EXTERN int a_vec_setm(a_vec *ctx, a_size mem);
 
 /*!
- @brief set number of element for a pointer to string structure
- @param[in] ctx points to an instance of string structure
+ @brief set number of element for a pointer to vector structure
+ @param[in] ctx points to an instance of vector structure
  @param[in] num new number of current element
  @param[in] dtor current element destructor
- @return the execution state of the function
+ @return error code value
   @retval 0 success
-  @retval 1 failure
 */
 A_EXTERN int a_vec_setn(a_vec *ctx, a_size num, void (*dtor)(void *));
 
@@ -215,14 +201,6 @@ A_EXTERN int a_vec_setn(a_vec *ctx, a_size num, void (*dtor)(void *));
  @param[in] dtor previous element destructor
 */
 A_EXTERN void a_vec_setz(a_vec *ctx, a_size siz, void (*dtor)(void *));
-
-/*!
- @brief swap elements lhs and rhs for a pointer to vector structure
- @param[in] ctx points to an instance of vector structure
- @param[in] lhs element index on the left
- @param[in] rhs element index on the right
-*/
-A_EXTERN void a_vec_swap(a_vec const *ctx, a_size lhs, a_size rhs);
 
 /*!
  @brief sort all elements for a pointer to vector structure
@@ -359,6 +337,31 @@ A_EXTERN void *a_vec_pull_fore(a_vec *ctx);
 */
 A_EXTERN void *a_vec_pull_back(a_vec *ctx);
 #define A_VEC_PULL_BACK(T, ctx) a_cast_s(T *, a_vec_pull_back(ctx))
+
+/*!
+ @brief store elements into the vector
+ @param[in] ctx points to an instance of vector structure
+ @param[in] idx index of element in this vector
+ @param[in] ptr points to array elements
+ @param[in] num number of array elements
+ @param[in] copy a function that copies elements
+  @arg 0 use function a_copy to copy elements
+ @return error code value
+  @retval 0 success
+*/
+A_EXTERN int a_vec_store(a_vec *ctx, a_size idx, void *ptr, a_size num, int (*copy)(void *, void const *));
+
+/*!
+ @brief erase elements from the vector
+ @param[in] ctx points to an instance of vector structure
+ @param[in] idx index of element in this vector
+ @param[in] num number of elements to erase
+ @param[in] dtor a function that erases elements
+  @arg 0 not erase these elements
+ @return error code value
+  @retval 0 success
+*/
+A_EXTERN int a_vec_erase(a_vec *ctx, a_size idx, a_size num, void (*dtor)(void *));
 
 #if defined(__cplusplus)
 } /* extern "C" */

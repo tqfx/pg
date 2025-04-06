@@ -97,11 +97,11 @@ static void main_init(void)
         a_size n = 0;
         if (io_getline(env, &p, &n) > ~0)
         {
-            a_str_putn(&local.rule, p, n);
+            a_str_catn(&local.rule, p, n);
         }
         else
         {
-            a_str_puts(&local.rule, env);
+            a_str_cats(&local.rule, env);
         }
         free(p);
     }
@@ -113,11 +113,11 @@ static void main_init(void)
         a_size n = 0;
         if (io_getline(env, &p, &n) > ~0)
         {
-            a_str_putn(&local.code, p, n);
+            a_str_catn(&local.code, p, n);
         }
         else
         {
-            a_str_puts(&local.code, env);
+            a_str_cats(&local.code, env);
         }
         free(p);
     }
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
     if (local.file == 0)
     {
         a_str str = A_STR_INIT;
-        a_str_puts(&str, local.self);
+        a_str_cats(&str, local.self);
 #if defined(_WIN32)
         if (strstr(a_str_ptr(&str), ".exe"))
         {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         {
             a_str_getn_(&str, 0, 4);
         }
-        a_str_puts(&str, ".db");
+        a_str_cats(&str, ".db");
         local.file = a_str_exit(&str);
     }
 

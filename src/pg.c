@@ -502,40 +502,40 @@ void pg_item_set_size(pg_item *ctx, unsigned int size)
 int pg_item_set_text(pg_item *ctx, void const *text)
 {
     a_str_setn_(ctx->text, 0);
-    return a_str_puts(ctx->text, text ? text : "");
+    return a_str_cats(ctx->text, text ? text : "");
 }
 int pg_item_set_hash(pg_item *ctx, void const *hash)
 {
     a_str_setn_(ctx->hash, 0);
-    return a_str_puts(ctx->hash, hash ? hash : "MD5");
+    return a_str_cats(ctx->hash, hash ? hash : "MD5");
 }
 int pg_item_set_hint(pg_item *ctx, void const *hint)
 {
     a_str_setn_(ctx->hint, 0);
-    return a_str_puts(ctx->hint, hint ? hint : "");
+    return a_str_cats(ctx->hint, hint ? hint : "");
 }
 int pg_item_set_misc(pg_item *ctx, void const *misc)
 {
     a_str_setn_(ctx->misc, 0);
-    return a_str_puts(ctx->misc, misc ? misc : "");
+    return a_str_cats(ctx->misc, misc ? misc : "");
 }
 int pg_item_set_text2(pg_item *ctx, a_str const *text)
 {
     a_str_setn_(ctx->text, 0);
-    return a_str_put(ctx->text, text);
+    return a_str_cat(ctx->text, text);
 }
 int pg_item_set_hash2(pg_item *ctx, a_str const *hash)
 {
     a_str_setn_(ctx->hash, 0);
-    return a_str_put(ctx->hash, hash);
+    return a_str_cat(ctx->hash, hash);
 }
 int pg_item_set_hint2(pg_item *ctx, a_str const *hint)
 {
     a_str_setn_(ctx->hint, 0);
-    return a_str_put(ctx->hint, hint);
+    return a_str_cat(ctx->hint, hint);
 }
 int pg_item_set_misc2(pg_item *ctx, a_str const *misc)
 {
     a_str_setn_(ctx->misc, 0);
-    return a_str_put(ctx->misc, misc);
+    return a_str_cat(ctx->misc, misc);
 }

@@ -21,9 +21,12 @@ static int a_que_die_(a_que *ctx, a_list *node)
     if (A_UNLIKELY(!node)) { return A_INVALID; }
     if (ctx->mem_ <= ctx->cur_)
     {
-        a_size const mem = ctx->mem_ + (ctx->mem_ >> 1) + 1;
-        a_list **const ptr = (a_list **)a_alloc((void *)ctx->ptr_, sizeof(void *) * mem);
-        if (A_UNLIKELY(!ptr)) { return A_FAILURE; }
+        a_list **ptr;
+        a_size mem = ctx->mem_;
+        mem += (ctx->mem_ >> 1) + 1;
+        mem = a_size_up(sizeof(void *), mem);
+        ptr = (a_list **)a_alloc((void *)ctx->ptr_, sizeof(void *) * mem);
+        if (A_UNLIKELY(!ptr)) { return A_OMEMORY; }
         ctx->ptr_ = ptr;
         ctx->mem_ = mem;
     }
@@ -93,10 +96,12 @@ void a_que_dtor(a_que *ctx, void (*dtor)(void *))
     ctx->mem_ = 0;
 }
 
-void a_que_move(a_que *ctx, a_que *obj)
+void a_que_swap(a_que *lhs, a_que *rhs)
 {
-    a_copy(ctx, obj, sizeof(*obj));
-    a_zero(obj, sizeof(*obj));
+    a_que swap;
+    swap = *lhs;
+    *lhs = *rhs;
+    *rhs = swap;
 }
 
 int a_que_drop(a_que *ctx, void (*dtor)(void *))
@@ -104,12 +109,13 @@ int a_que_drop(a_que *ctx, void (*dtor)(void *))
     a_list *const head = &ctx->head_, *node;
     for (node = head->next; node != head; node = head->next)
     {
-        if (a_que_die_(ctx, node) == 0)
+        int rc = a_que_die_(ctx, node);
+        if (rc == 0)
         {
             a_list_del_node(node);
             a_list_dtor(node);
         }
-        else { return A_FAILURE; }
+        else { return rc; }
     }
     if (dtor)
     {
@@ -125,8 +131,8 @@ int a_que_drop(a_que *ctx, void (*dtor)(void *))
 
 int a_que_setz(a_que *ctx, a_size siz, void (*dtor)(void *))
 {
-    int ok = a_que_drop(ctx, dtor);
-    if (ok == 0)
+    int rc = a_que_drop(ctx, dtor);
+    if (rc == 0)
     {
         if (!siz) { siz = 1; }
         if (siz > ctx->siz_)
@@ -136,13 +142,13 @@ int a_que_setz(a_que *ctx, a_size siz, void (*dtor)(void *))
             for (; cur; ++ptr, --cur)
             {
                 void *const p = a_alloc(*ptr, sizeof(a_list) + siz);
-                if (A_UNLIKELY(!p)) { return A_FAILURE; }
+                if (A_UNLIKELY(!p)) { return A_OMEMORY; }
                 *ptr = (a_list *)p;
             }
         }
         ctx->siz_ = siz;
     }
-    return ok;
+    return rc;
 }
 
 void *a_que_at(a_que const *ctx, a_diff idx)
@@ -165,32 +171,6 @@ void *a_que_at(a_que const *ctx, a_diff idx)
         }
     }
     return A_NULL;
-}
-
-int a_que_swap(a_que const *ctx, a_size lhs, a_size rhs)
-{
-    a_size cur = 0;
-    int ok = A_FAILURE;
-    a_list *it, *at = A_NULL;
-    a_size const num = ctx->num_ - 1;
-    lhs = lhs < ctx->num_ ? lhs : num;
-    rhs = rhs < ctx->num_ ? rhs : num;
-    if (lhs == rhs) { return A_SUCCESS; }
-    A_LIST_FOREACH_NEXT(it, &ctx->head_)
-    {
-        if (cur == lhs || cur == rhs)
-        {
-            if (at)
-            {
-                a_list_swap_node(it, at);
-                ok = A_SUCCESS;
-                break;
-            }
-            else { at = it; }
-        }
-        ++cur;
-    }
-    return ok;
 }
 
 void a_que_sort_fore(a_que const *ctx, int (*cmp)(void const *, void const *))
